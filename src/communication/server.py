@@ -6,10 +6,8 @@ import BaseHTTPServer
 
 
 HOST_NAME = 'localhost'
-PORT_NUMBER = 8000
 
-
-class State:
+class Robot:
     def __init__(self):
         self.agents = []
         self.allowedMoves = []
@@ -38,18 +36,18 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """Respond to a POST request."""
 	content_len = int(s.headers.getheader('content-length'))
 	post_body = s.rfile.read(content_len)
-	state = State()
-	state.from_json(post_body)
-	print state.position
+	robot = Robot()
+	robot.from_json(post_body)
+	print robot.position
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
-        s.wfile.write('{ "move": [ %s, %s ] }' %state.allowedMoves[0])
+        s.wfile.write('{ "move": [ %s, %s ] }' %robot.allowedMoves[0])
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), MyHandler)
-    print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
+    print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
