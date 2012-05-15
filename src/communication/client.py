@@ -1,4 +1,5 @@
 import httplib
+import json
 from server import State
 
 def printText(txt):
@@ -6,17 +7,19 @@ def printText(txt):
     for line in lines:
         print line.strip()
 
-httpServ = httplib.HTTPConnection("127.0.0.1", 8000)
-httpServ.connect()
+def get_move(url, state):
+	httpServ = httplib.HTTPConnection(url)
+	httpServ.connect()
+	httpServ.request('POST', "/test", state.to_json())
+	response = httpServ.getresponse()
+	httpServ.close()
+	if response.status == httplib.OK:
+		return tuple(json.loads(response.read())['move']) 
+	#TODO throw exception
 
-httpServ.request('GET', "/test")
-
-response = httpServ.getresponse()
-if response.status == httplib.OK:
-    state = State()
-    state.from_json(response.read())
-    print state.allowedMoves
-    print state.agents
-    print state.position
-
-httpServ.close()
+if __name__ == '__main__':
+	s = State()
+	s.allowedMoves.append((1,1))
+	s.setOwnPosition((0,0))
+	s.agents.append((0,0))
+	print get_move("127.0.0.1:8000", s)
