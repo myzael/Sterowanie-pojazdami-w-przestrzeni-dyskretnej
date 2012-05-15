@@ -1,4 +1,5 @@
 import json
+import sys
 import ast
 import time
 import BaseHTTPServer
@@ -47,7 +48,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
+    httpd = server_class((HOST_NAME, int(sys.argv[1])), MyHandler)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
     try:
         httpd.serve_forever()
