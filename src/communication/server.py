@@ -1,33 +1,13 @@
-import json
 import sys
-import ast
 import time
 import BaseHTTPServer
-
+import random
+from robot import Robot
 
 HOST_NAME = 'localhost'
 
-class Robot:
-    def __init__(self):
-        self.agents = []
-        self.allowedMoves = []
 
-    def setOwnPosition(self, position):
-        self.position = position
-
-    def to_json(self):
-        return json.dumps(self.__dict__)
-
-    def from_json(self, json):
-        dictionary = ast.literal_eval(json)
-        self.agents = [ (x[0], x[1]) for x in dictionary["agents"]]
-        self.allowedMoves = [ (x[0], x[1]) for x in dictionary["allowedMoves"]]
-        self.position = (tuple(dictionary["position"]))
-
-
-
-
-class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class ExampleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_HEAD(s):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
@@ -42,11 +22,11 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
-        s.wfile.write('{ "move": [ %s, %s ] }' %robot.allowedMoves[0])
+        s.wfile.write('{ "move": [ %s, %s ] }' %robot.allowedMoves[int(random.random()*len(robot.allowedMoves))])
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((HOST_NAME, int(sys.argv[1])), MyHandler)
+    httpd = server_class((HOST_NAME, int(sys.argv[1])), ExampleAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
     try:
         httpd.serve_forever()

@@ -1,6 +1,6 @@
 import httplib
 import json
-from server import Robot
+from robot import Robot
 
 def printText(txt):
     lines = txt.split('\n')
@@ -21,5 +21,5 @@ if __name__ == '__main__':
 	r = Robot()
 	r.allowedMoves.append((1,1))
 	r.setOwnPosition((0,0))
-	r.agents.append((0,0))
+	r.robots.append((0,0))
 	print get_move("127.0.0.1:8000", r)

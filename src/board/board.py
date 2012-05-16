@@ -28,6 +28,8 @@ class Board(object):
     def moveRobot(self, sourcePosition, targetPosition):
         if not self._positionOccupied(sourcePosition):
             raise StandardError('Cannot move robot. Position ' + str(sourcePosition) + ' does not contain any robots')
+	elif sourcePosition == targetPosition:
+		pass
         elif not self._canMoveTo(targetPosition):
             raise StandardError('Cannot move robot. Move from ' + str(sourcePosition) + ' to ' + str(targetPosition) + ' is illegal')
         else:
