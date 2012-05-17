@@ -22,7 +22,10 @@ class ExampleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
-        s.wfile.write('{ "move": [ %s, %s ] }' %robot.allowedMoves[int(random.random()*len(robot.allowedMoves))])
+	if robot.getOwnPosition() in robot.destination:
+		s.wfile.write('{ "move": [ %s, %s ] }' %robot.getOwnPosition())
+	else:
+		s.wfile.write('{ "move": [ %s, %s ] }' %robot.allowedMoves[int(random.random()*len(robot.allowedMoves))])
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer

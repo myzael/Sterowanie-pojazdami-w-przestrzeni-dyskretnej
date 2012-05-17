@@ -1,4 +1,4 @@
-/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src/board/test.bmp
-1 (10,10) [(0,0)]			localhost:8000
+/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src/board/test2.bmp
+1 (4,0)  [(5,1)]			localhost:8000
 2 (0,0)  [(5,5),(5,6)]		localhost:8000
-3 (6,0)  [(1,1)]			localhost:8000
+3 (6,0)  [(6,1)]			localhost:8000
