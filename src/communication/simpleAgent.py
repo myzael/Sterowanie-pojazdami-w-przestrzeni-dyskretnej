@@ -7,7 +7,7 @@ from robot import Robot
 HOST_NAME = 'localhost'
 
 
-class ExampleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
+class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_HEAD(s):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
@@ -29,7 +29,7 @@ class ExampleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
-    httpd = server_class((HOST_NAME, int(sys.argv[1])), ExampleAgent)
+    httpd = server_class((HOST_NAME, int(sys.argv[1])), SimpleAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
     try:
         httpd.serve_forever()
