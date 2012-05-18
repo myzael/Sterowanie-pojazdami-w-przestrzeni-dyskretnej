@@ -1,15 +1,20 @@
 from PIL import Image
 import networkx as nx
 from networkx.classes.function import get_node_attributes
+import matplotlib.pyplot as plt
 
 ROBOT_ID = 'robotID'
 
 class Board(object):
     '''Represents a board that models a part'''
-
+    i=1
 
     def __init__(self, filename):
         self._read(filename)
+        self.draw()
+        plt.interactive(True)
+        plt.hold(False)
+        plt.show()
 
     def addRobot(self, position, robotID):
         if not self._positionExists(position):
@@ -28,8 +33,8 @@ class Board(object):
     def moveRobot(self, sourcePosition, targetPosition):
         if not self._positionOccupied(sourcePosition):
             raise StandardError('Cannot move robot. Position ' + str(sourcePosition) + ' does not contain any robots')
-	elif sourcePosition == targetPosition:
-		pass
+        elif sourcePosition == targetPosition:
+            pass
         elif not self._canMoveTo(targetPosition):
             raise StandardError('Cannot move robot. Move from ' + str(sourcePosition) + ' to ' + str(targetPosition) + ' is illegal')
         else:
@@ -37,10 +42,14 @@ class Board(object):
 
 
     def getAllowedMoves(self, position):
-        '''Does NOT require a robot to be in the specified position'''
+        '''Does NOT require a robot tom be in the specified position'''
         return [position] + filter(self._canMoveTo, self.graph.neighbors(position))
-
+    def draw(self):
+        nx.draw_networkx(self.graph, self.nodePositions,labels=self.getRobots(),node_size=150,node_color='g',font_color='w',animated=True)
+#        nx.draw_networkx_nodes(b1.graph, b1.nodePositions, node_size=50)
     def refreshBoard(self):
+        self.draw()
+        plt.draw()
         pass
 
     # Helper methods    
@@ -88,7 +97,7 @@ class Board(object):
         # create positions map
         self.nodePositions = {}
         for pair in self.graph.nodes():
-            self.nodePositions[pair] = pair
+            self.nodePositions[pair] = (pair[0]*2.0,pair[1]*2.0)
 
 
 
@@ -99,17 +108,23 @@ if __name__ == "__main__":
     b1.addRobot((0, 1), 2)
     print b1.getAllowedMoves((0,0))
     print b1.getRobots()
+    b1.refreshBoard();
 
     b1.moveRobot((0, 1), (0, 2));
     print b1.getRobots()
+    
+    b1.moveRobot((0, 2), (0, 3));
+    b1.moveRobot
+    b1.refreshBoard();
+    b1.moveRobot((0, 3), (0, 4));
+    b1.refreshBoard();
+    b1.moveRobot((0, 4), (0, 3));
+    b1.refreshBoard();
 
 
 
-#    import matplotlib.pyplot as plt
 
-#    nx.draw_networkx_edges(b1.graph, b1.nodePositions)
-#    nx.draw_networkx_nodes(b1.graph, b1.nodePositions, node_size=50)
-#    plt.savefig("test-results.png")
+
 #    plt.show()
 #    
 #    b2 = Board('test2.bmp')
