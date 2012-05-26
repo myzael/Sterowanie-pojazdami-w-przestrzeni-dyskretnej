@@ -9,12 +9,13 @@ class Board(object):
     '''Represents a board that models a part'''
     i=1
 
-    def __init__(self, filename):
+    def __init__(self, filename, draw=True):
         self._read(filename)
         self.draw()
         plt.interactive(True)
         plt.hold(False)
-        plt.show()
+        if draw:
+            plt.show()
 
     def addRobot(self, position, robotID):
         if not self._positionExists(position):
