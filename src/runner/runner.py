@@ -4,6 +4,7 @@ sys.path.append('../')
 from communication.robot import Robot
 from board.board import Board
 from communication.client import get_move
+from time import sleep
 
 def readRobot(args):
     '''
@@ -32,7 +33,7 @@ if __name__ == "__main__":
         robots.append((robot, args[3]))
         board.addRobot(robot.position, args[0])
     while shouldContinue(robots):
-        raw_input("Press Enter to continue")
+	sleep(1)
         print map(lambda t: t[0].position, robots)
         for robot, url in robots:
             robot.robots = map(lambda r: r[0].position, robots)
