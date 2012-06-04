@@ -1,4 +1,5 @@
 import sys
+import time
 
 sys.path.append('../')
 from communication.robot import Robot
@@ -12,9 +13,10 @@ def read_command_line_args():
     parser = OptionParser()
     parser.add_option("-v", "--visualize", action="store_true",
         dest="visualize", help="visualize simulation")
+    parser.add_option("-s", "--save", action="store_true",
+        dest="save", help="save history to file")
     (options, args) = parser.parse_args()
-    visualize = options.visualize
-    return visualize
+    return options.visualize, options.save
 
 def readRobot(args):
     '''
@@ -34,7 +36,7 @@ def shouldContinue(robots):
     return filter(lambda (r, u): r.getOwnPosition() not in r.destination, robots)
 
 if __name__ == "__main__":
-    visualize = read_command_line_args()
+    visualize, save = read_command_line_args()
     config = open('config')
     board = Board(config.readline().strip('\n'), visualize)
     robots = []
@@ -54,4 +56,8 @@ if __name__ == "__main__":
         if visualize:
             sleep(1)
             board.refreshBoard()
+    if save:
+        filename = 'history/' + str(time.time())
+        print filename
+        board.dumpHistory(filename)
 

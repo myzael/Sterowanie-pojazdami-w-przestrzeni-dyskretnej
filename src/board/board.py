@@ -2,6 +2,7 @@ from PIL import Image
 import networkx as nx
 from networkx.classes.function import get_node_attributes
 import matplotlib.pyplot as plt
+import cPickle
 
 ROBOT_ID = 'robotID'
 
@@ -12,6 +13,7 @@ class Board(object):
     def __init__(self, filename, draw=True):
         self._read(filename)
         self.draw()
+        self.history = []
         plt.interactive(True)
         plt.hold(False)
         if draw:
@@ -39,6 +41,7 @@ class Board(object):
         elif not self._canMoveTo(targetPosition):
             raise StandardError('Cannot move robot. Move from ' + str(sourcePosition) + ' to ' + str(targetPosition) + ' is illegal')
         else:
+            self.history.append((sourcePosition, targetPosition))
             self.graph.node[targetPosition][ROBOT_ID] = self.graph.node[sourcePosition].pop(ROBOT_ID)
 
 
@@ -52,6 +55,10 @@ class Board(object):
         self.draw()
         plt.draw()
         pass
+
+    def dumpHistory(self, filename):
+        print len(self.history)
+        cPickle.dump(self.history, open(filename, 'w+'))
 
     # Helper methods    
     def _canMoveTo(self, position):
