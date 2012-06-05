@@ -28,9 +28,9 @@ class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         if robot.getOwnPosition() in robot.destination:
-            self.wfile.write('{ "move": [ %self, %self ] }' % robot.getOwnPosition())
+            self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
         else:
-            self.wfile.write('{ "move": [ %self, %self ] }' % robot.allowedMoves[int(random.random() * len(robot.allowedMoves))])
+            self.wfile.write('{ "move": [ %s, % ] }' % robot.allowedMoves[int(random.random() * len(robot.allowedMoves))])
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
