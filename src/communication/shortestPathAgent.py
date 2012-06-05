@@ -40,21 +40,22 @@ class ShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         if(not robots.has_key(robot.getId())):
             robots[robot.getId()] = calculatePath(robot)
 
-        robots[robot.getId()].remove(robot.getOwnPosition())
-        print robot.position
+        print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), robots[robot.getId()], robot.position)
+
+
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         if robot.getOwnPosition() in robot.destination:
-            self.wfile.write('{ "move": [ %self, %self ] }' % robot.getOwnPosition())
+            self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
         else:
             moves = robot.allowedMoves
             desired = robots[robot.getId()][0]
             if desired in moves:
                 del robots[robot.getId()][0]
-                self.wfile.write('{ "move": [ %self, %self ] }' % desired)
+                self.wfile.write('{ "move": [ %s, %s ] }' % desired)
             else:
-                self.wfile.write('{ "move": [ %self, %self ] }' % robot.getOwnPosition())
+                self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
 
 if __name__ == '__main__':
     b = Board(sys.argv[2], False)
