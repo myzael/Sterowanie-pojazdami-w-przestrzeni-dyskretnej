@@ -10,7 +10,7 @@ echo $1
 while [ $i -lt $1 ]
 do
 	python ../communication/simpleAgent.py 8000 &
-	python runner.py 
+	python runner.py -c config
 	let "i=$i+1"
 	echo $i
 done

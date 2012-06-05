@@ -15,8 +15,10 @@ def read_command_line_args():
         dest="visualize", help="visualize simulation")
     parser.add_option("-s", "--save", action="store_true",
         dest="save", help="save history to file")
+    parser.add_option("-c", "--config", action="store",
+        dest="configPath", help="path to config file", type="string")
     (options, args) = parser.parse_args()
-    return options.visualize, options.save
+    return options.visualize, options.save, options.configPath
 
 def readRobot(args):
     '''
@@ -36,8 +38,8 @@ def shouldContinue(robots):
     return filter(lambda (r, u): r.getOwnPosition() not in r.destination, robots)
 
 if __name__ == "__main__":
-    visualize, save = read_command_line_args()
-    config = open('config')
+    visualize, save, configPath = read_command_line_args()
+    config = open(configPath)
     board = Board(config.readline().strip('\n'), visualize)
     robots = []
     for line in config.read().splitlines():
