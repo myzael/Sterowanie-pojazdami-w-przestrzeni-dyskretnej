@@ -12,25 +12,25 @@ class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     simple agent choosing random move until it reaches destination
     '''
 
-    def do_HEAD(s):
-        s.send_response(200)
-        s.send_header("Content-type", "text/html")
-        s.end_headers()
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
 
-    def do_POST(s):
+    def do_POST(self):
         """Respond to a POST request."""
-        content_len = int(s.headers.getheader('content-length'))
-        post_body = s.rfile.read(content_len)
+        content_len = int(self.headers.getheader('content-length'))
+        post_body = self.rfile.read(content_len)
         robot = Robot()
         robot.from_json(post_body)
         print robot.position
-        s.send_response(200)
-        s.send_header("Content-type", "text/html")
-        s.end_headers()
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
         if robot.getOwnPosition() in robot.destination:
-            s.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
+            self.wfile.write('{ "move": [ %self, %self ] }' % robot.getOwnPosition())
         else:
-            s.wfile.write('{ "move": [ %s, %s ] }' % robot.allowedMoves[int(random.random() * len(robot.allowedMoves))])
+            self.wfile.write('{ "move": [ %self, %self ] }' % robot.allowedMoves[int(random.random() * len(robot.allowedMoves))])
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
@@ -41,4 +41,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     httpd.server_close()
-    print time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER)
+    print time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, sys.argv[1])

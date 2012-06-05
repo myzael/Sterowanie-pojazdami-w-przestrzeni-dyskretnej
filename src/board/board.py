@@ -7,16 +7,17 @@ import cPickle
 ROBOT_ID = 'robotID'
 
 class Board(object):
-    '''Represents a board that models a part'''
-    i=1
+    '''Represents a board that models a part of reality. 
+    If there is a conneciton between nodes, and the target node is empty, the move is allowed.'''
+    i = 1
 
     def __init__(self, filename, draw=True):
         self._read(filename)
-        self.draw()
         self.history = []
-        plt.interactive(True)
-        plt.hold(False)
         if draw:
+            self.draw()
+            plt.interactive(True)
+            plt.hold(False)
             plt.show()
 
     def addRobot(self, position, robotID):
@@ -25,7 +26,7 @@ class Board(object):
         elif  self._positionOccupied(position) :
             raise StandardError('Cannot add robot! Position ' + str(position) + ' already occupied')
         elif self._containsRobot(robotID):
-            raise StandardError('Cannot add robot. Robot od id ' + str(robotID) + ' is already on the board')
+            raise StandardError('Cannot add robot. Robot of id ' + str(robotID) + ' is already on the board')
         else:
             self.graph.node[position][ROBOT_ID] = robotID
 
@@ -49,7 +50,7 @@ class Board(object):
         '''Does NOT require a robot tom be in the specified position'''
         return [position] + filter(self._canMoveTo, self.graph.neighbors(position))
     def draw(self):
-        nx.draw_networkx(self.graph, self.nodePositions,labels=self.getRobots(),node_size=150,node_color='g',font_color='w',animated=True)
+        nx.draw_networkx(self.graph, self.nodePositions, labels=self.getRobots(), node_size=150, node_color='g', font_color='w', animated=True)
 #        nx.draw_networkx_nodes(b1.graph, b1.nodePositions, node_size=50)
     def refreshBoard(self):
         self.draw()
@@ -105,7 +106,7 @@ class Board(object):
         # create positions map
         self.nodePositions = {}
         for pair in self.graph.nodes():
-            self.nodePositions[pair] = (pair[0]*2.0,pair[1]*2.0)
+            self.nodePositions[pair] = (pair[0] * 2.0, pair[1] * 2.0)
 
 
 
@@ -114,13 +115,13 @@ if __name__ == "__main__":
     b1 = Board('test.bmp')
     b1.addRobot((0, 0), 1)
     b1.addRobot((0, 1), 2)
-    print b1.getAllowedMoves((0,0))
+    print b1.getAllowedMoves((0, 0))
     print b1.getRobots()
     b1.refreshBoard();
 
     b1.moveRobot((0, 1), (0, 2));
     print b1.getRobots()
-    
+
     b1.moveRobot((0, 2), (0, 3));
     b1.moveRobot
     b1.refreshBoard();
