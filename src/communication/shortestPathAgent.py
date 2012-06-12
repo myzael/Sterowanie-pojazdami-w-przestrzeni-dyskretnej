@@ -11,7 +11,7 @@ b = None
 robots = {}
 
 
-def calculatePath(robot):
+def calculatePath(robot, b):
 #    choose the destination with shortest path
     paths = {}
     for dest in robot.destination :
@@ -38,7 +38,7 @@ class ShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         robot.from_json(post_body)
 
         if(not robots.has_key(robot.getId())):
-            robots[robot.getId()] = calculatePath(robot)
+            robots[robot.getId()] = calculatePath(robot, b)
 
         print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), robots[robot.getId()], robot.position)
 

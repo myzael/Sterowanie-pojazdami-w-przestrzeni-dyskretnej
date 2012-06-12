@@ -1,13 +1,14 @@
 import sys
 import time
-
 sys.path.append('../')
 from communication.robot import Robot
 from board.board import Board
 from communication.client import get_move
 from time import sleep
 from optparse import OptionParser
+from networkx import shortest_path_length
 
+EXPONENT = 7
 
 def read_command_line_args():
     parser = OptionParser()
@@ -37,29 +38,61 @@ def shouldContinue(robots):
     """
     return filter(lambda (r, u): r.getOwnPosition() not in r.destination, robots)
 
-if __name__ == "__main__":
-    visualize, save, configPath = read_command_line_args()
-    config = open(configPath)
-    board = Board(config.readline().strip('\n'), visualize)
+
+def calculate_shortest_path_length(robots, board):
+    lengths = dict()
+    for robot in robots:
+        lengths[robot.id] = min(map(lambda dest: shortest_path_length(board.graph, robot.position, dest), robot.destination))
+    return lengths
+
+
+def parse_config(board, config):
     robots = []
     for line in config.read().splitlines():
         args = line.split()
         robot = readRobot(args)
         robots.append((robot, args[3]))
         board.addRobot(robot.position, args[0])
+    return robots
+
+
+def move(board, robot, robots, statistics, url):
+    robot.robots = map(lambda r: r[0].position, robots)
+    robot.allowedMoves = board.getAllowedMoves(robot.position)
+    newPosition = get_move(url, robot)
+    board.moveRobot(robot.position, newPosition)
+    if robot.position != newPosition or robot.position not in robot.destination:
+        statistics[robot.id] = statistics.get(robot.id, 0) + 1
+    robot.setOwnPosition(newPosition)
+
+
+def save_history(board):
+    filename = 'history/' + str(time.time())
+    print filename
+    board.dumpHistory(filename)
+
+
+def calculate__metric(shortest_paths, statistics):
+    metric = sum(map(lambda id: (statistics[id] - shortest_paths[id]) ** EXPONENT, shortest_paths.keys()))
+    return metric
+
+if __name__ == "__main__":
+    visualize, save, configPath = read_command_line_args()
+    config = open(configPath)
+    board = Board(config.readline().strip('\n'), visualize)
+    statistics = dict()
+    robots = parse_config(board, config)
+    shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)
     while shouldContinue(robots):
         print map(lambda t: t[0].position, robots)
         for robot, url in robots:
-            robot.robots = map(lambda r: r[0].position, robots)
-            robot.allowedMoves = board.getAllowedMoves(robot.position)
-            newPosition = get_move(url, robot)
-            board.moveRobot(robot.position, newPosition)
-            robot.setOwnPosition(newPosition)
+            move(board, robot, robots, statistics, url)
         if visualize:
             sleep(1)
             board.refreshBoard()
+    print shortest_paths
+    print statistics
+    print calculate__metric(shortest_paths, statistics)
     if save:
-        filename = 'history/' + str(time.time())
-        print filename
-        board.dumpHistory(filename)
+        save_history(board)
 
