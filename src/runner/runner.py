@@ -76,6 +76,13 @@ def calculate__metric(shortest_paths, statistics):
     metric = sum(map(lambda id: (statistics[id] - shortest_paths[id]) ** EXPONENT, shortest_paths.keys()))
     return metric
 
+
+def initialize(board, robots):
+    for robot, url in robots:
+        robot.robots = map(lambda r: r[0].position, robots)
+        robot.allowedMoves = board.getAllowedMoves(robot.position)
+        get_move(url, robot)
+
 if __name__ == "__main__":
     visualize, save, configPath = read_command_line_args()
     config = open(configPath)
@@ -83,6 +90,7 @@ if __name__ == "__main__":
     statistics = dict()
     robots = parse_config(board, config)
     shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)
+    initialize(board, robots)
     while shouldContinue(robots):
         print map(lambda t: t[0].position, robots)
         for robot, url in robots:
