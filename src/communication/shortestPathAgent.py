@@ -39,6 +39,10 @@ class ShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if(not robots.has_key(robot.getId())):
             robots[robot.getId()] = calculatePath(robot, b)
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            return
 
         print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), robots[robot.getId()], robot.position)
 

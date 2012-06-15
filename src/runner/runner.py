@@ -81,7 +81,10 @@ def initialize(board, robots):
     for robot, url in robots:
         robot.robots = map(lambda r: r[0].position, robots)
         robot.allowedMoves = board.getAllowedMoves(robot.position)
-        get_move(url, robot)
+        try:
+            get_move(url, robot)
+        except ValueError:
+            pass
 
 if __name__ == "__main__":
     visualize, save, configPath = read_command_line_args()
