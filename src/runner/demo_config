@@ -1,0 +1,7 @@
+../board/demo.bmp
+0 (10,10) [(0,10)]			localhost:8000
+1 (5,5)  [(5,14)]			localhost:8000
+2 (5,4)  [(5,13)]			localhost:8000
+3 (5,3)  [(5,12)]			localhost:8000
+4 (5,2)  [(5,11)]			localhost:8000
+5 (5,1)  [(5,10)]			localhost:8000

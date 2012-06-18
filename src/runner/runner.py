@@ -106,4 +106,5 @@ if __name__ == "__main__":
     print calculate__metric(shortest_paths, statistics)
     if save:
         save_history(board)
+    raw_input("press enter to exit")
 
