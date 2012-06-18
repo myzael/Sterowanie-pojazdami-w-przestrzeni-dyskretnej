@@ -1,6 +1,8 @@
 from board import Board
 from board import ROBOT_ID
+from networkx.classes.function import get_node_attributes
 import operator
+import networkx as nx
 VELOCITY = 'velocity'
 
 class SimplePhysicsBoard(Board):
@@ -13,14 +15,47 @@ class SimplePhysicsBoard(Board):
         if not self._positionOccupied(sourcePosition):
             raise StandardError('Cannot move robot. Position ' + str(sourcePosition) + ' does not contain any robots')
         elif sourcePosition == targetPosition:
-            self.graph.node[sourcePosition][VELOCITY] = (0,0)
+            self.graph.node[sourcePosition][VELOCITY] = (0, 0)
         elif not self._canMoveTo(targetPosition) or not self._isGoodVelocity(sourcePosition, targetPosition):
             raise StandardError('Cannot move robot. Move from ' + str(sourcePosition) + ' to ' + str(targetPosition) + ' is illegal')
         else:
             self.history.append((sourcePosition, targetPosition))
             self.graph.node[targetPosition][ROBOT_ID] = self.graph.node[sourcePosition].pop(ROBOT_ID)
+
+            # set new velocity
             del self.graph.node[sourcePosition][VELOCITY]
             self.graph.node[targetPosition][VELOCITY] = tuple(map(operator.sub, targetPosition, sourcePosition))
+
+    def draw(self):
+        nc = map(self.createNodesColors, self.graph.nodes())
+        nx.draw_networkx_nodes(self.graph, self.nodePositions, node_size=200, node_color=nc,animated=True)
+
+        l = []
+        for r in self.getRobots():
+            vel =self.graph.node[r][VELOCITY]
+            if vel != (0,0):
+                velPos = tuple(map(operator.add, vel, r))
+                l.append((r, velPos))
+                # fucking ordering!
+                l.append((velPos, r))
+
+        ec = map((lambda x: x in l and 'y' or'k'), self.graph.edges())
+        
+        nx.draw_networkx_edges(self.graph, self.nodePositions, edge_color=ec, width=5, animated=True)
+        nx.draw_networkx_labels(self.graph, self.nodePositions, labels=self.getRobots(), font_color='w', animated=True)
+
+    def createNodesColors(self, tup):
+        if tup in self.getRobots().keys():
+            return 'r'
+        else:
+            return 'w'
+
+    def createEdgesColors(self, tup):
+        if tup in list:
+            return 'g'
+        else:
+            return 'k'
+
 
     def getAllowedMoves(self, position):
         # emptyAvaliablePlaces
@@ -38,43 +73,31 @@ class SimplePhysicsBoard(Board):
             c = tuple(map(operator.sub, velocity, wantedV))
             return abs(c[0]) + abs(c[1]) <= 1
 
+
+
 if __name__ == "__main__":
-    b1 = SimplePhysicsBoard('test.bmp', False)
+    b1 = SimplePhysicsBoard('test.bmp')
     b1.addRobot((0, 0), 1)
     b1.addRobot((0, 1), 2)
-    print b1.getAllowedMoves((0, 0))
-    print b1.getRobots()
     b1.refreshBoard();
 
     b1.moveRobot((0, 1), (0, 2));
-    print b1.getAllowedMoves((0, 2))
     b1.refreshBoard();
 
     b1.moveRobot((0, 2), (0, 3));
-    print b1.getAllowedMoves((0, 3))
     b1.refreshBoard();
-    
+
     b1.moveRobot((0, 3), (0, 4));
-    print b1.getAllowedMoves((0, 4))
-    b1.refreshBoard();
-    
-    b1.moveRobot((0, 4), (0, 4));
-    print b1.getAllowedMoves((0, 4))
-    b1.refreshBoard();
-    
-    b1.moveRobot((0, 4), (0, 3));
-    print b1.getAllowedMoves((0, 3))
     b1.refreshBoard();
 
-#if __name__ == "__main__":
-#    a = [(1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
-#    for t in a:
-#        print t
-#        print '\n'
-#        for org in a:
-#            r = tuple(map(operator.sub, t, org))
-#            if abs(r[0]) + abs(r[1]) <= 1:
-#                print org
-#            
-#        print "############"
+    b1.moveRobot((0, 4), (0, 5));
+    b1.refreshBoard();
 
+    b1.moveRobot((0, 5), (1, 6));
+    b1.refreshBoard();
+
+    b1.moveRobot((1, 6), (2, 7));
+    b1.refreshBoard();
+    
+    b1.moveRobot((2, 7), (2, 8));
+    b1.refreshBoard();

@@ -15,10 +15,17 @@ class Board(object):
         self._read(filename)
         self.history = []
         if draw:
-            self.draw()
             plt.interactive(True)
             plt.hold(False)
+
+            # clear axes
+            ax = plt.axes([0, 0, 1, 1])
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+            self.draw()
             plt.show()
+
 
     def addRobot(self, position, robotID):
         if not self._positionExists(position):
@@ -51,7 +58,6 @@ class Board(object):
         return [position] + filter(self._canMoveTo, self.graph.neighbors(position))
     def draw(self):
         nx.draw_networkx(self.graph, self.nodePositions, labels=self.getRobots(), node_size=150, node_color='g', font_color='w', animated=True)
-#        nx.draw_networkx_nodes(b1.graph, b1.nodePositions, node_size=50)
     def refreshBoard(self):
         self.draw()
         plt.draw()
@@ -106,7 +112,7 @@ class Board(object):
         # create positions map
         self.nodePositions = {}
         for pair in self.graph.nodes():
-            self.nodePositions[pair] = (pair[0] * 2.0, pair[1] * 2.0)
+            self.nodePositions[pair] = (pair[0] * 4, pair[1] * 4)
 
 
 
