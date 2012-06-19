@@ -14,11 +14,10 @@ EXPONENT = 7
 
 class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     '''
-    simple agent choosing the shortest path for all robots
+    agent that searches shortest paths in different orders to achieve the best solution
     '''
     
-    def __init__(self, request, client_address, server):
-        super(PermutationShortestPathAgent, self).__init__(self, request, client_address, server)
+    def __init__(self):
         self.robotsPaths = {}
 
     def do_HEAD(self):
