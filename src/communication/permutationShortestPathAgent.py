@@ -11,6 +11,7 @@ HOST_NAME = 'localhost'
 b = None
 
 
+
 EXPONENT = 7
 
 class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -19,6 +20,7 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     '''
     
     def __init__(self, request, client_address, server):
+        BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, server)
         self.robotsPaths = {}
 
     def do_HEAD(self):
@@ -32,9 +34,9 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         post_body = self.rfile.read(content_len)
         robot = Robot()
         robot.from_json(post_body)
-
+  #      self.robotsPaths = {}
         if(not self.robotsPaths.has_key(robot.getId())):
-            self.robotsPaths = calculatePaths(b, robot)
+            self.robotsPaths = self.calculatePaths(b, robot)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -51,40 +53,51 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             moves = robot.allowedMoves
             desired = self.robotsPaths[robot.getId()][0]
+            print desired
             if desired in moves:
                 del self.robotsPaths[robot.getId()][0]
                 self.wfile.write('{ "move": [ %s, %s ] }' % desired)
             else:
                 self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
                 
-        def calculatePaths(self, b, robot):
+    def calculatePaths(self, b, robot):
             paths = {}
             for dest in robot.destination :
                 paths[dest] = shortest_path_length(b.graph, robot.getOwnPosition(), dest)
         
             # strip the first node on path -> the starting position    
             sp = shortest_path(b.graph, robot.getOwnPosition(), min(paths, key=paths.get))[1:]
-            self.robotsPaths[robot.getID()] = sp
+            self.robotsPaths[robot] = sp
         
-            penalty = 0
+            penalty = sys.maxint
             for perm in permutations(self.robotsPaths):
                 positions = []
                 newMoves = {}
-                for robot in perm.keys():
+                for robot in perm:
                     time = 0
+                    if len(positions) <= time:
+                        positions.append([])
                     positions[time].append(robot.getOwnPosition())
         
-                    newMoves[robot.getID()] = []
-                    for position in perm[robot]:
+                    newMoves[robot] = []
+                    for position in self.robotsPaths[robot]:
                         time = time + 1
+                        if len(positions) <= time:
+                            positions.append([])
                         while position in positions[time]:
                             time = time + 1
+                            if len(positions) <= time:
+                                positions.append([])
                             positions[time].append(position)
-                            newMoves[robot.getID()].append(position)
+                            if robot not in newMoves:
+                                newMoves[robot] = []
+                            newMoves[robot].append(position)
                         positions[time].append(position)
-                        newMoves[robot.getID()].append(position)
+                        if robot not in newMoves:
+                            newMoves[robot] = []
+                        newMoves[robot].append(position)
         
-                newPenalty = sum(map(lambda x: (newMoves[x] - self.robotsPaths[x]) ** EXPONENT), newMoves.keys())
+                newPenalty = sum(map(lambda x: (len(newMoves[x]) - len(self.robotsPaths[x])) ** EXPONENT, newMoves.keys()))
                 if penalty > newPenalty:
                     penalty = newPenalty
                     moves = newMoves
