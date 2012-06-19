@@ -1,7 +1,6 @@
 import sys
 import time
 import BaseHTTPServer
-import random
 from robot import Robot
 from board.board import Board
 from networkx import shortest_path, shortest_path_length
@@ -16,6 +15,8 @@ def calculatePath(robot, b):
     paths = {}
     for dest in robot.destination :
         paths[dest] = shortest_path_length(b.graph, robot.getOwnPosition(), dest)
+        
+    # strip the first node on path -> the starting position    
     return shortest_path(b.graph, robot.getOwnPosition(), min(paths, key=paths.get))[1:]
 
 

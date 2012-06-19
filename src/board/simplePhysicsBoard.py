@@ -1,6 +1,5 @@
 from board import Board
 from board import ROBOT_ID
-from networkx.classes.function import get_node_attributes
 import operator
 import networkx as nx
 VELOCITY = 'velocity'
@@ -36,7 +35,7 @@ class SimplePhysicsBoard(Board):
             if vel != (0,0):
                 velPos = tuple(map(operator.add, vel, r))
                 l.append((r, velPos))
-                # fucking ordering!
+                # fucking networkx ordering!
                 l.append((velPos, r))
 
         ec = map((lambda x: x in l and 'y' or'k'), self.graph.edges())
