@@ -8,54 +8,17 @@ from itertools import permutations
 
 HOST_NAME = 'localhost'
 b = None
-robotsPaths = {}
+
 
 EXPONENT = 7
-
-def calculatePaths(b, robot):
-    paths = {}
-    for dest in robot.destination :
-        paths[dest] = shortest_path_length(b.graph, robot.getOwnPosition(), dest)
-
-    # strip the first node on path -> the starting position    
-    sp = shortest_path(b.graph, robot.getOwnPosition(), min(paths, key=paths.get))[1:]
-    robotsPaths[robot.getID()] = sp
-
-    penalty = 0
-    for perm in permutations(robotsPaths):
-        positions = []
-        newMoves = {}
-        for robot in perm.keys():
-            time = 0
-            positions[time].append(robot.getOwnPosition())
-
-            newMoves[robot.getID()] = []
-            for position in perm[robot]:
-                time = time + 1
-                while position in positions[time]:
-                    time = time + 1
-                    positions[time].append(position)
-                    newMoves[robot.getID()].append(position)
-                positions[time].append(position)
-                newMoves[robot.getID()].append(position)
-
-        newPenalty = calculatePenalty(newMoves)
-        if penalty > newPenalty:
-            penalty = newPenalty
-            moves = newMoves
-
-    return penalty, moves
-
-def calculatePenalty(newMoves):
-    return sum(map(lambda x: (newMoves[x] - robotsPaths[x]) ** EXPONENT), newMoves.keys())
-
-
-
 
 class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     '''
     simple agent choosing the shortest path for all robots
     '''
+    
+    def __init__(self):
+        self.robotsPaths = {}
 
     def do_HEAD(self):
         self.send_response(200)
@@ -69,14 +32,14 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         robot = Robot()
         robot.from_json(post_body)
 
-        if(not robotsPaths.has_key(robot.getId())):
-            robotsPaths = calculatePaths(b, robot)[1]
+        if(not self.robotsPaths.has_key(robot.getId())):
+            self.robotsPaths = calculatePaths(b, robot)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             return
 
-#        print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), robotsPaths[robot.getId()], robot.position)
+#        print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), self.robotsPaths[robot.getId()], robot.position)
 
 
         self.send_response(200)
@@ -86,12 +49,46 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
         else:
             moves = robot.allowedMoves
-            desired = robotsPaths[robot.getId()][0]
+            desired = self.robotsPaths[robot.getId()][0]
             if desired in moves:
-                del robotsPaths[robot.getId()][0]
+                del self.robotsPaths[robot.getId()][0]
                 self.wfile.write('{ "move": [ %s, %s ] }' % desired)
             else:
                 self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
+                
+        def calculatePaths(self, b, robot):
+            paths = {}
+            for dest in robot.destination :
+                paths[dest] = shortest_path_length(b.graph, robot.getOwnPosition(), dest)
+        
+            # strip the first node on path -> the starting position    
+            sp = shortest_path(b.graph, robot.getOwnPosition(), min(paths, key=paths.get))[1:]
+            self.robotsPaths[robot.getID()] = sp
+        
+            penalty = 0
+            for perm in permutations(self.robotsPaths):
+                positions = []
+                newMoves = {}
+                for robot in perm.keys():
+                    time = 0
+                    positions[time].append(robot.getOwnPosition())
+        
+                    newMoves[robot.getID()] = []
+                    for position in perm[robot]:
+                        time = time + 1
+                        while position in positions[time]:
+                            time = time + 1
+                            positions[time].append(position)
+                            newMoves[robot.getID()].append(position)
+                        positions[time].append(position)
+                        newMoves[robot.getID()].append(position)
+        
+                newPenalty = sum(map(lambda x: (newMoves[x] - self.robotsPaths[x]) ** EXPONENT), newMoves.keys())
+                if penalty > newPenalty:
+                    penalty = newPenalty
+                    moves = newMoves
+        
+            return moves
 
 if __name__ == '__main__':
     b = Board(sys.argv[2], False)
