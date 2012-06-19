@@ -19,7 +19,6 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     '''
     
     def __init__(self, request, client_address, server):
-        BaseRequestHandler.__init__(self, request, client_address, server)
         self.robotsPaths = {}
 
     def do_HEAD(self):
