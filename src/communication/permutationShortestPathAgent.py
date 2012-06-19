@@ -9,7 +9,9 @@ from SocketServer import BaseRequestHandler
 
 HOST_NAME = 'localhost'
 b = None
-
+robots = {}
+robotsPaths = {}
+moves = {}
 
 
 EXPONENT = 7
@@ -21,28 +23,29 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     
     def __init__(self, request, client_address, server):
         BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, server)
-        self.robotsPaths = {}
+        robotsPaths = {}
 
     def do_HEAD(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-
+        
     def do_POST(self):
         """Respond to a POST request."""
         content_len = int(self.headers.getheader('content-length'))
         post_body = self.rfile.read(content_len)
         robot = Robot()
         robot.from_json(post_body)
-  #      self.robotsPaths = {}
-        if(not self.robotsPaths.has_key(robot.getId())):
-            self.robotsPaths = self.calculatePaths(b, robot)
+  #      robotsPaths = {}
+        if(not robotsPaths.has_key(robot.getId())):
+            robots[robot.getId()] = robot
+            self.calculatePaths(b, robot)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             return
 
-#        print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), self.robotsPaths[robot.getId()], robot.position)
+#        print 'id: {0}, path: {1}, position: {2}'.format(robot.getId(), robotsPaths[robot.getId()], robot.position)
 
 
         self.send_response(200)
@@ -51,58 +54,65 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         if robot.getOwnPosition() in robot.destination:
             self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
         else:
-            moves = robot.allowedMoves
-            desired = self.robotsPaths[robot.getId()][0]
+            allowedMoves = robot.allowedMoves
+            desired = moves[robot.getId()][0]
             print desired
-            if desired in moves:
-                del self.robotsPaths[robot.getId()][0]
+            if desired in allowedMoves:
+                del moves[robot.getId()][0]
                 self.wfile.write('{ "move": [ %s, %s ] }' % desired)
             else:
                 self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
                 
     def calculatePaths(self, b, robot):
+            global moves
             paths = {}
             for dest in robot.destination :
                 paths[dest] = shortest_path_length(b.graph, robot.getOwnPosition(), dest)
         
             # strip the first node on path -> the starting position    
             sp = shortest_path(b.graph, robot.getOwnPosition(), min(paths, key=paths.get))[1:]
-            self.robotsPaths[robot] = sp
+            robotsPaths[robot.getId()] = sp
         
             penalty = sys.maxint
-            for perm in permutations(self.robotsPaths):
+            for perm in permutations(robotsPaths):
                 positions = []
                 newMoves = {}
-                for robot in perm:
+                for id in perm:
+                    robot = robots[id]
                     time = 0
                     if len(positions) <= time:
                         positions.append([])
                     positions[time].append(robot.getOwnPosition())
         
-                    newMoves[robot] = []
-                    for position in self.robotsPaths[robot]:
+                    newMoves[robot.getId()] = []
+                    oldPosition = robotsPaths[robot.getId()][0]
+                    positions[0].append(oldPosition)
+                    newMoves[robot.getId()].append(oldPosition)
+                    for position in robotsPaths[robot.getId()][1:]:
                         time = time + 1
                         if len(positions) <= time:
                             positions.append([])
                         while position in positions[time]:
-                            time = time + 1
                             if len(positions) <= time:
                                 positions.append([])
-                            positions[time].append(position)
-                            if robot not in newMoves:
-                                newMoves[robot] = []
-                            newMoves[robot].append(position)
+                            positions[time].append(oldPosition)
+                            if robot.getId() not in newMoves:
+                                newMoves[robot.getId()] = []
+                            newMoves[robot.getId()].append(oldPosition)
+                            time += 1
                         positions[time].append(position)
-                        if robot not in newMoves:
-                            newMoves[robot] = []
-                        newMoves[robot].append(position)
+                        if robot.getId() not in newMoves:
+                            newMoves[robot.getId()] = []
+                        newMoves[robot.getId()].append(position)
+                        oldPosition = position
         
-                newPenalty = sum(map(lambda x: (len(newMoves[x]) - len(self.robotsPaths[x])) ** EXPONENT, newMoves.keys()))
+                newPenalty = sum(map(lambda x: (len(newMoves[x]) - len(robotsPaths[x])) ** EXPONENT, newMoves.keys()))
+                print  newPenalty
                 if penalty > newPenalty:
                     penalty = newPenalty
                     moves = newMoves
-        
-            return moves
+
+
 
 if __name__ == '__main__':
     b = Board(sys.argv[2], False)
