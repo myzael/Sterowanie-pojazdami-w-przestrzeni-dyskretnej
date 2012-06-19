@@ -17,7 +17,8 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     simple agent choosing the shortest path for all robots
     '''
     
-    def __init__(self):
+    def __init__(self, request, client_address, server):
+        super.__init__(self, request, client_address, server)
         self.robotsPaths = {}
 
     def do_HEAD(self):
