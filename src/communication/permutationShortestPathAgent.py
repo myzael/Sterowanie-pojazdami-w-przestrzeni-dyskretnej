@@ -5,6 +5,7 @@ from robot import Robot
 from board.board import Board
 from networkx import shortest_path, shortest_path_length
 from itertools import permutations
+from SocketServer import BaseRequestHandler
 
 HOST_NAME = 'localhost'
 b = None
@@ -18,7 +19,7 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
     '''
     
     def __init__(self, request, client_address, server):
-        super.__init__(self, request, client_address, server)
+        super(BaseRequestHandler, self).__init__(self, request, client_address, server)
         self.robotsPaths = {}
 
     def do_HEAD(self):
