@@ -1,3 +1,4 @@
+import httplib
 import sys
 import time
 sys.path.append('../')
@@ -85,6 +86,8 @@ def initialize(board, robots):
             get_move(url, robot)
         except ValueError:
             pass
+        except httplib.BadStatusLine:
+            pass
 
 if __name__ == "__main__":
     visualize, save, configPath = read_command_line_args()
@@ -94,8 +97,9 @@ if __name__ == "__main__":
     robots = parse_config(board, config)
     shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)
     initialize(board, robots)
+    print "initialized"
     while shouldContinue(robots):
-        print map(lambda t: t[0].position, robots)
+     #   print map(lambda t: t[0].position, robots)
         for robot, url in robots:
             move(board, robot, robots, statistics, url)
         if visualize:

@@ -18,7 +18,9 @@ def get_move(url, robot):
     response = httpServ.getresponse()
     httpServ.close()
     if response.status == httplib.OK:
-        return tuple(json.loads(response.read())['move'])
+        body = response.read()
+        print body
+        return tuple(json.loads(body)['move'])
         #TODO throw exception
 
 if __name__ == '__main__':
