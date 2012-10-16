@@ -4,6 +4,7 @@ import time
 sys.path.append('../')
 from communication.robot import Robot
 from board.board import Board
+from board.simplePhysicsBoard import SimplePhysicsBoard
 from communication.client import get_move
 from time import sleep
 from optparse import OptionParser
@@ -30,6 +31,8 @@ def readRobot(args):
     robot.setId(args[0])
     robot.setOwnPosition(eval(args[1]))
     robot.destination = eval(args[2])
+    robot.setSpeed(0)
+    robot.setVelocity((0, 0))
     return robot
 
 
@@ -60,11 +63,13 @@ def parse_config(board, config):
 def move(board, robot, robots, statistics, url):
     robot.robots = map(lambda r: r[0].position, robots)
     robot.allowedMoves = board.getAllowedMoves(robot.position)
-    newPosition = get_move(url, robot)
-    board.moveRobot(robot.position, newPosition)
+    newPosition, newSpeed, newVelocity = get_move(url, robot)
+    board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
     if robot.position != newPosition or robot.position not in robot.destination:
         statistics[robot.id] = statistics.get(robot.id, 0) + 1
     robot.setOwnPosition(newPosition)
+    robot.setVelocity(newVelocity)
+    robot.setSpeed(newSpeed)
 
 
 def save_history(board):
@@ -92,7 +97,8 @@ def initialize(board, robots):
 if __name__ == "__main__":
     visualize, save, configPath = read_command_line_args()
     config = open(configPath)
-    board = Board(config.readline().strip('\n'), visualize)
+    #board = Board(config.readline().strip('\n'), visualize)
+    board = SimplePhysicsBoard(config.readline().strip('\n'), visualize)
     statistics = dict()
     robots = parse_config(board, config)
     shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)

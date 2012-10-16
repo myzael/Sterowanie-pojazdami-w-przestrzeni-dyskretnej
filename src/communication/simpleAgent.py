@@ -21,6 +21,7 @@ class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         """Respond to a POST request."""
         content_len = int(self.headers.getheader('content-length'))
         post_body = self.rfile.read(content_len)
+        print post_body
         robot = Robot()
         robot.from_json(post_body)
         print robot.position
@@ -28,9 +29,10 @@ class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         if robot.getOwnPosition() in robot.destination:
-            self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
+            self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [1, 1] }' % robot.getOwnPosition())
         else:
-            self.wfile.write('{ "move": [ %s, %s ] }' % robot.allowedMoves[int(random.random() * len(robot.allowedMoves))])
+            move = robot.allowedMoves[int(random.random() * len(robot.allowedMoves))]
+            self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [%s, %s] }' %( move[0][0], move[0][1], move[1][0], move[1][1]))
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer

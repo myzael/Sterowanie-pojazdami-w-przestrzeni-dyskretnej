@@ -10,7 +10,7 @@ class SimplePhysicsBoard(Board):
             Board.addRobot(self, position, robotID)
             self.graph.node[position][VELOCITY] = (0, 0)
 
-    def moveRobot(self, sourcePosition, targetPosition):
+    def moveRobot(self, sourcePosition, targetPosition, newSpeed, newVelocity): #TODO handle speed and velocity
         if not self._positionOccupied(sourcePosition):
             raise StandardError('Cannot move robot. Position ' + str(sourcePosition) + ' does not contain any robots')
         elif sourcePosition == targetPosition:
@@ -59,7 +59,9 @@ class SimplePhysicsBoard(Board):
     def getAllowedMoves(self, position):
         # emptyAvaliablePlaces
         eAP = [position] + filter(self._canMoveTo, self.graph.neighbors(position))
-        return filter(lambda c : self._isGoodVelocity(position, c), eAP)
+        places_with_good_velocity = filter(lambda c: self._isGoodVelocity(position, c), eAP)
+        #TODO: should return proper velocities, speed is not required here as agent should know that speed can change only by one
+        return [(node, (1,1)) for node in places_with_good_velocity]
 
     def _isGoodVelocity(self, source, target):
         velocity = self.graph.node[source].get(VELOCITY, None)
