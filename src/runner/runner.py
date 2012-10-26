@@ -106,8 +106,19 @@ if __name__ == "__main__":
     print "initialized"
     while shouldContinue(robots):
      #   print map(lambda t: t[0].position, robots)
+        moves = []
         for robot, url in robots:
-            move(board, robot, robots, statistics, url)
+            robot.robots = map(lambda r: r[0].position, robots)
+            robot.allowedMoves = board.getAllowedMoves(robot.position)
+            newPosition, newSpeed, newVelocity = get_move(url, robot)
+            moves.append((robot, newPosition, newSpeed, newVelocity))
+        for robot, newPosition, newSpeed, newVelocity in moves:
+            board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
+            if robot.position != newPosition or robot.position not in robot.destination:
+                statistics[robot.id] = statistics.get(robot.id, 0) + 1
+            robot.setOwnPosition(newPosition)
+            robot.setVelocity(newVelocity)
+            robot.setSpeed(newSpeed)
         if visualize:
             sleep(1)
             board.refreshBoard()
