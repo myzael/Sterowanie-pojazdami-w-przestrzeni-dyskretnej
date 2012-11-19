@@ -1,4 +1,5 @@
-from math import sqrt
+from math import floor
+from math import ceil
 import networkx as nx
 from vect2d import *
 
@@ -31,8 +32,17 @@ def curVelocityReachable(trajectory):
 
 
 def calculateTakenFields(trajectory):
-    taken = None
-    return taken
+    taken = set()
+    for point in trajectory:
+        surrounding = (Vec2d(x,y) for x,y in [(floor(point.x),floor(point.y)),
+                                              (floor(point.x),ceil(point.y)),
+                                              (ceil(point.x),floor(point.y)),
+                                              (ceil(point.x),ceil(point.y))])
+        for s in surrounding:
+            if s.get_dist_sqrd(point) < 2:
+                taken.add((int(s.x),int(s.y)))
+
+    return list(taken)
 
 
 def accelerationAllowed(trajectory):
@@ -127,6 +137,10 @@ def calculateBezier(points, steps=30):
     return points
 
 if __name__ == "__main__":
-    moves = getAllowedMoves(2)
+    moves = getAllowedMoves(1)
     for key in moves.keys():
-        print key, moves[key]
+        print key
+        print '\t', moves[key][0]
+        print '\t', moves[key][1]
+        print '\t', moves[key][2]
+        print ""
