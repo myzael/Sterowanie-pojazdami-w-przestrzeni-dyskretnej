@@ -2,6 +2,7 @@ from math import floor
 from math import ceil
 import networkx as nx
 from vect2d import *
+from copy import deepcopy
 
 __author__ = 'Myzael'
 # TODO: rewrite to use point and vector classes?
@@ -9,9 +10,10 @@ def distance(p1, p2):
     return p1.get_distance(p2)
 
 
-def isInReach(curPoint, startPoint, startV, maxPosAcc):
-    # dist(curPoint-startPoint) <= |startV| * t + 1/2 * maxPosAcc * t^2
-    return distance(curPoint, startPoint) <= startV[0] + 0, 5 * maxPosAcc
+def isInReach(curPoint, startPoint, startSpeed, maxPosAcc):
+    dist = distance(curPoint, startPoint)
+    maxi = startSpeed + 0.5 * maxPosAcc
+    return dist <= maxi
 
 
 def getStartVs(maxSpeed):
@@ -27,20 +29,37 @@ def getVelocities(curV, maxSpeed, maxPosAcc, maxNegAcc):
             yield v
 
 
-def curVelocityReachable(trajectory):
-    return True
+def calculateBezierLength(trajectory):
+    distance = 0.0
+    curPoint = trajectory[0]
+    for point in trajectory:
+        distance = distance + point.get_distance(curPoint)
+        curPoint = point
+    return distance
+
+
+def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc):
+    lenght = calculateBezierLength(trajectory)
+    lenghtGood = startSpeed - 0.5 * maxNegAcc <= lenght <= startSpeed + 0.5 * maxPosAcc
+
+    maxSpeed = curSpeed + maxPosAcc
+    minSpeed = curSpeed - maxNegAcc
+    speedGood = minSpeed <= curSpeed <= maxSpeed
+
+    accGood = -maxNegAcc <= curSpeed - startSpeed <= maxPosAcc
+    return lenghtGood and speedGood and accGood
 
 
 def calculateTakenFields(trajectory):
     taken = set()
     for point in trajectory:
-        surrounding = (Vec2d(x,y) for x,y in [(floor(point.x),floor(point.y)),
-                                              (floor(point.x),ceil(point.y)),
-                                              (ceil(point.x),floor(point.y)),
-                                              (ceil(point.x),ceil(point.y))])
+        surrounding = (Vec2d(x, y) for x, y in [(floor(point.x), floor(point.y)),
+                                                (floor(point.x), ceil(point.y)),
+                                                (ceil(point.x), floor(point.y)),
+                                                (ceil(point.x), ceil(point.y))])
         for s in surrounding:
-            if s.get_dist_sqrd(point) < 2:
-                taken.add((int(s.x),int(s.y)))
+            if s.get_dist_sqrd(point) <= 2:
+                taken.add((int(s.x), int(s.y)))
 
     return list(taken)
 
@@ -58,29 +77,33 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2):
     moves = dict()
     grid = createGrid(maxSpeed)
 
-    for v in getStartVs(maxSpeed):
-        key = (v[0], (v[1].x, v[1].y))
-        moves[key] = list()
-#        print v
+    vs = getStartVs(maxSpeed)
+#    for startV in vs:
+#        print startV
+    for startV in vs:
+        key = (startV[0], (startV[1].x, startV[1].y))
+        if not key in moves or not moves[key]:
+            moves[key] = list()
+        #        print v
         # start BFS in center point
         startPoint = Vec2d(maxSpeed, maxSpeed)
         for i in nx.bfs_tree(grid, (startPoint.x, startPoint.y)):
             curPoint = Vec2d(i)
-            if isInReach(curPoint, startPoint, v, maxPosAcc):
-                for curV in getVelocities(curV=v, maxSpeed=maxSpeed, maxPosAcc=maxPosAcc, maxNegAcc=maxNegAcc):
+            if isInReach(curPoint, startPoint, startV[0], maxPosAcc):
+                for curV in getVelocities(startV, maxSpeed, maxPosAcc, maxNegAcc):
                     p0 = startPoint
-                    p1 = startPoint + v[1]
-                    p2 = i - curV[1]
+                    p1 = startPoint + startV[1]*startV[0]
+                    p2 = i - curV[0]*curV[1]
                     p3 = Vec2d(i)
-#                    print [p0, p1, p2, p3]
-                    bezier = calculateBezier([p0, p1, p2, p3])
-                    if not curVelocityReachable(trajectory=bezier):
+                    print [p0, p1, p2, p3]
+                    bezier = calculateBezier([deepcopy(p0), deepcopy(p1), deepcopy(p2), deepcopy(p3)])
+                    if not curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc):
                         break
 
-                    if not accelerationAllowed(trajectory=bezier):
+                    if not accelerationAllowed(bezier):
                         break
 
-                    takenFields = calculateTakenFields(trajectory=bezier)
+                    takenFields = calculateTakenFields(bezier)
 
                     moves[key].append((i, (curV[1].x, curV[1].y), takenFields))
     return moves
@@ -105,7 +128,7 @@ def createGrid(maxSpeed):
     return graph
 
 
-def calculateBezier(points, steps=30):
+def calculateBezier(points, steps=60):
     """
     Calculate a bezier curve from 4 control points and return a
     list of the resulting points.
@@ -128,19 +151,18 @@ def calculateBezier(points, steps=30):
 
     points = []
     for x in xrange(steps):
-        points.append(f)
+        points.append(deepcopy(f))
         f += fd + fdd_per_2 + fddd_per_6
         fd += fdd + fddd_per_2
         fdd += fddd
         fdd_per_2 += fddd_per_2
-    points.append(f)
+    points.append(deepcopy(f))
     return points
 
 if __name__ == "__main__":
-    moves = getAllowedMoves(1)
+    moves = getAllowedMoves(2)
     for key in moves.keys():
-        print key
-        print '\t', moves[key][0]
-        print '\t', moves[key][1]
-        print '\t', moves[key][2]
-        print ""
+            for move in moves[key]:
+                print "endP: {0}, endV: {1}, taken: {2}".format(move[0], move[1], move[2])
+    print ""
+
