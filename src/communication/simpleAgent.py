@@ -24,7 +24,6 @@ class SimpleAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         print post_body
         robot = Robot()
         robot.from_json(post_body)
-        print robot.position
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()

@@ -19,7 +19,7 @@ def get_move(url, robot):
     httpServ.close()
     if response.status == httplib.OK:
         body = response.read()
-#        print body
+        print body
         dictionary = json.loads(body)
         return tuple(dictionary['move']), dictionary['speed'], tuple(dictionary['velocity'])
         #TODO throw exception
