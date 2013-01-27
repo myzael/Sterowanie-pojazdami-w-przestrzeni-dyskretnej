@@ -8,7 +8,7 @@ from itertools import permutations
 from SocketServer import BaseRequestHandler
 
 HOST_NAME = 'localhost'
-b = None
+board = None
 robots = {}
 robotsPaths = {}
 moves = {}
@@ -39,7 +39,7 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
   #      robotsPaths = {}
         if(not robotsPaths.has_key(robot.getId())):
             robots[robot.getId()] = robot
-            self.calculatePaths(b, robot)
+            self.calculatePaths(board, robot)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -115,7 +115,7 @@ class PermutationShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    b = Board(sys.argv[2], False)
+    board = Board(sys.argv[2], False)
 
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), PermutationShortestPathAgent)

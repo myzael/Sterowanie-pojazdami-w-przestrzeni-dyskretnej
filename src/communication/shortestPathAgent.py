@@ -6,7 +6,7 @@ from board.board import Board
 from networkx import shortest_path, shortest_path_length
 
 HOST_NAME = 'localhost'
-b = None
+board = None
 robots = {}
 
 
@@ -39,7 +39,7 @@ class ShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         robot.from_json(post_body)
 
         if(not robots.has_key(robot.getId())):
-            robots[robot.getId()] = calculatePath(robot, b)
+            robots[robot.getId()] = calculatePath(robot, board)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -63,7 +63,7 @@ class ShortestPathAgent(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.wfile.write('{ "move": [ %s, %s ] }' % robot.getOwnPosition())
 
 if __name__ == '__main__':
-    b = Board(sys.argv[2], False)
+    board = Board(sys.argv[2], False)
 
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), ShortestPathAgent)

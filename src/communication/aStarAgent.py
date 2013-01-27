@@ -3,40 +3,80 @@ import sys
 sys.path.append("/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src")
 import time
 import BaseHTTPServer
-import random
 from board.board import Board
+from board.simplePhysicsBoard import SimplePhysicsBoard
 from robot import Robot
 
 HOST_NAME = 'localhost'
 
-b = None
+board = None
+physics_board = None
+limit = None
+
+def selection(openset, end):
+    return min(openset, key=lambda point: abs(end[0] - point[0]) + abs(end[1] - point[1]))
+
+
+def physics_slection(openset, end):
+    def heuristics(state):
+        x, y = state[0]
+        return abs(end[0] - x) + abs(end[1] - y)
+
+    return min(openset, key=heuristics)
+
 
 def a_star(start, end):
-    global b
+    global board
+    global limit
     closedset = set()
     openset = {start}
-    path = []
-    previous = {}
+    steps = 0
 
-    while openset:
-        current = min(openset, key=lambda point: abs(end[0] - point[0]) + abs(end[1] - point[1]))
+    while openset and steps < limit:
+        steps += 1
+        current = selection(openset, end)
         if current == end:
-            path.insert(0, current)
-            while current in previous :
-                current = previous[current]
-                path.insert(0, current)
-            return path
+            return end
         openset.remove(current)
         closedset.add(current)
-        for point in b.getAllowedMoves(current):
+        for point in board.getAllowedMoves(current):
             if point not in closedset:
                 if point not in openset:
                     openset.add(point)
-                previous[point] = current
-    return path
+    return selection(openset, end)
+
+
+def physics_a_star(start, end):
+    global physics_board
+    global limit
+    path = []
+    previous = {}
+    closedset = set()
+    openset = {start}
+    steps = 0
+
+    while openset and steps < limit:
+        steps += 1
+        current = physics_slection(openset, end)
+        if current[0] == end:
+            path.insert(0, current)
+            while current in previous:
+                current = previous[current]
+                path.insert(0, current)
+            return path[0]
+        openset.remove(current)
+        closedset.add(current)
+        for s in physics_board.getAllowedMoves(current):
+            for state in [(s[0], s[1], speed) for speed in range(0, 3) if abs(speed - current[2]) <= 1]:
+                if state not in closedset:
+                    if state not in openset:
+                        openset.add(state)
+                    previous[state] = current
+    return physics_slection(openset, end)
+
 
 class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_HEAD(self):
+    def do_HEAD(self, limit):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -48,20 +88,23 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         print post_body
         robot = Robot()
         robot.from_json(post_body)
-        print a_star(robot.position, robot.destination[0])
+        print
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         if robot.getOwnPosition() in robot.destination:
             self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [1, 1] }' % robot.getOwnPosition())
         else:
-            move = robot.allowedMoves[int(random.random() * len(robot.allowedMoves))]
+            move = physics_a_star((robot.position, robot.velocity, robot.speed),
+                a_star(robot.position, robot.destination[0]))
             self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [%s, %s] }' % (
                 move[0][0], move[0][1], move[1][0], move[1][1]))
 
 if __name__ == '__main__':
-    b = Board(sys.argv[2], False)
-    print a_star((0, 0), (5, 6))
+    board = Board(sys.argv[3], False)
+    physics_board = SimplePhysicsBoard(sys.argv[3], False)
+    limit = int(sys.argv[2])
+    print a_star((0, 0), (12, 2))
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), aStarAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
