@@ -72,7 +72,12 @@ def physics_a_star(start, end):
                     if state not in openset:
                         openset.add(state)
                     previous[state] = current
-    return physics_slection(openset, end)
+    current = physics_slection(openset, end)
+    path.insert(0, current)
+    while current in previous:
+        current = previous[current]
+        path.insert(0, current)
+    return path[0]
 
 
 class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
