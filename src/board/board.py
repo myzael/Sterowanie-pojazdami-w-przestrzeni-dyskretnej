@@ -1,7 +1,8 @@
 from PIL import Image
 import networkx as nx
+import pylab
 from networkx.classes.function import get_node_attributes
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pyplot
 import cPickle
 
 ROBOT_ID = 'robotID'
@@ -15,16 +16,17 @@ class Board(object):
         self._read(filename)
         self.history = []
         if draw:
-            plt.interactive(True)
-            plt.hold(False)
-
+            pylab.ion()
+            pylab.hold()
+            pylab.show()
             # clear axes
-            ax = plt.axes([0, 0, 1, 1])
+            ax = pyplot.axes([0, 0, 1, 1])
             ax.set_xticks([])
             ax.set_yticks([])
-
-            self.draw()
-            plt.show()
+#
+#            self.draw()
+#            pyplot.draw()
+#            pyplot.show()
 
 
     def addRobot(self, position, robotID):
@@ -57,11 +59,10 @@ class Board(object):
         '''Does NOT require a robot tom be in the specified position'''
         return [position] + filter(self._canMoveTo, self.graph.neighbors(position))
     def draw(self):
-        nx.draw_networkx(self.graph, self.nodePositions, labels=self.getRobots(), node_size=150, node_color='g', font_color='w', animated=True)
+        nx.draw_networkx(self.graph, self.nodePositions, labels=self.getRobots(), node_size=150, node_color='w', font_color='k', animated=True)
     def refreshBoard(self):
         self.draw()
-        plt.draw()
-        pass
+        pyplot.pause(1)
 
     def dumpHistory(self, filename):
         print len(self.history)
@@ -121,15 +122,10 @@ if __name__ == "__main__":
     b1 = Board('test.bmp')
     b1.addRobot((0, 0), 1)
     b1.addRobot((0, 1), 2)
-    print b1.getAllowedMoves((0, 0))
-    print b1.getRobots()
     b1.refreshBoard();
-
     b1.moveRobot((0, 1), (0, 2));
-    print b1.getRobots()
-
+    b1.refreshBoard();
     b1.moveRobot((0, 2), (0, 3));
-    b1.moveRobot
     b1.refreshBoard();
     b1.moveRobot((0, 3), (0, 4));
     b1.refreshBoard();
