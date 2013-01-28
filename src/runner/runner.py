@@ -2,7 +2,7 @@ import httplib
 import sys
 import time
 from wx import ID_VIEW_SORTDATE
-from board.physicsBoard import PhysicsBoard
+from board.physicsBoard import PhysicsBoard, NoPhysicsBoard
 
 sys.path.append('../')
 from communication.robot import Robot
@@ -104,7 +104,8 @@ if __name__ == "__main__":
     config = open(configPath)
     #board = Board(config.readline().strip('\n'), visualize)
     #    board = SimplePhysicsBoard(config.readline().strip('\n'), visualize)
-    board = PhysicsBoard(config.readline().strip('\n'), 'board', 4, 2, 4, visualize)
+#    board = PhysicsBoard(config.readline().strip('\n'), 'board', 4, 2, 4, visualize)
+    board = NoPhysicsBoard(config.readline().strip('\n'), visualize)
     statistics = dict()
     robots = parse_config(board, config)
     shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)
@@ -119,14 +120,14 @@ if __name__ == "__main__":
             newPosition, newSpeed, newVelocity = get_move(url, robot)
             moves.append((robot, newPosition, newSpeed, newVelocity))
         for robot, newPosition, newSpeed, newVelocity in moves:
-            board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
+            board.moveRobot(robot.position, newPosition)
             if robot.position != newPosition or robot.position not in robot.destination:
                 statistics[robot.id] = statistics.get(robot.id, 0) + 1
             robot.setOwnPosition(newPosition)
             robot.setVelocity(newVelocity)
             robot.setSpeed(newSpeed)
         if visualize:
-            sleep(1)
+            sleep(0.5)
             board.refreshBoard()
     print shortest_paths
     print statistics

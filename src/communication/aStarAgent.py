@@ -1,7 +1,7 @@
 import sys
 
 sys.path.append("/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src")
-from board.physicsBoard import PhysicsBoard
+from board.physicsBoard import PhysicsBoard, NoPhysicsBoard
 import time
 import BaseHTTPServer
 from robot import Robot
@@ -23,7 +23,7 @@ def physics_slection(openset, end):
     return min(openset, key=heuristics)
 
 
-def a_star(start, end):
+def a_star(start, end, robots):
     global board
     global limit
     closedset = set()
@@ -38,13 +38,14 @@ def a_star(start, end):
         openset.remove(current)
         closedset.add(current)
         for point in board.getFreeNeighbors(current):
-            if point not in closedset:
+            if point not in closedset and point not in robots:
                 if point not in openset:
                     openset.add(point)
     return selection(openset, end)
 
 
 def physics_a_star(start, end):
+    print end
     global board
     global limit
     path = []
@@ -61,7 +62,7 @@ def physics_a_star(start, end):
             while current in previous:
                 current = previous[current]
                 path.insert(0, current)
-            return path[0]
+            return path[1]
         openset.remove(current)
         closedset.add(current)
         for state in board.getAvaliableStates(current):
@@ -74,7 +75,8 @@ def physics_a_star(start, end):
     while current in previous:
         current = previous[current]
         path.insert(0, current)
-    return path[0]
+    print path
+    return path[1]
 
 
 class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -98,12 +100,15 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('{ "move": [ %s, %s ], "speed" : 0, "velocity" : [1, 1] }' % robot.getOwnPosition())
         else:
             move = physics_a_star((robot.position, robot.velocity, robot.speed),
-                a_star(robot.position, robot.destination[0]))
+                a_star(robot.position, robot.destination[0], robot.robots))
+            print '{ "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
+                move[0][0], move[0][1], move[2], move[1][0], move[1][1])
             self.wfile.write('{ "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
                 move[0][0], move[0][1], move[2], move[1][0], move[1][1]))
 
 if __name__ == '__main__':
-    board = PhysicsBoard(sys.argv[3], 'board', 4, 2, 4, False)
+#    board = PhysicsBoard(sys.argv[3], 'board', 4, 2, 4, False)
+    board = NoPhysicsBoard(sys.argv[3], False)
     limit = int(sys.argv[2])
     print board.getFreeNeighbors((19, 0))
     print physics_a_star(((19,0),(1,0),1), (19,10))

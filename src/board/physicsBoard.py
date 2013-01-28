@@ -43,6 +43,16 @@ class PhysicsBoard(SimplePhysicsBoard):
 
         return aMoves
 
+    def getAvaliableStates(self, state):
+
+        key = state[1],state[2]
+        aMoves = copy.copy(self.moves[key])
+        aMoves = map(lambda tup: self.translate(tup,state[0]), aMoves)
+
+        aMoves = filter(lambda tup: not self._positionExists(tup[0]), aMoves)
+
+        return aMoves
+
     def translate(self, tup, position):
         return (tuple(map(operator.add, tup[0], position))),tup[1],tup[2]
 
@@ -66,8 +76,28 @@ class PhysicsBoard(SimplePhysicsBoard):
             del self.graph.node[sourcePosition][SPEED]
             self.graph.node[targetPosition][SPEED] = newSpeed
 
+
+class NoPhysicsBoard(Board):
+    def __init__(self, filename, draw=True):
+        super(NoPhysicsBoard, self).__init__(filename, draw)
+
+    def addRobot(self, position, robotID, initialDirection):
+        Board.addRobot(self, position, robotID)
+
+    def getAllowedMoves(self, position):
+        return [(x, (0,0), 0) for x in self.getFreeNeighbors(position)]
+
+    def getAvaliableStates(self, state):
+        return self.getAllowedMoves(state[0])
+
+    def getFreeNeighbors(self,position):
+        return filter(lambda p :not self._positionOccupied(p), self.graph.neighbors(position))
+
 if __name__ == "__main__":
     b = PhysicsBoard('test.bmp','physics',4,2,4)
     b.addRobot((0, 0), 1, (0,1))
 
-    print b.getAllowedMoves((0,0))
+#    print b.getAllowedMoves((0,0))
+
+    for i in b.getAvaliableStates(((0,0), (0,1), 0)):
+        print i

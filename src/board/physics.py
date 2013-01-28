@@ -227,25 +227,25 @@ def get_fig(moves, key):
 
     # draw end point
     for i, move in enumerate(moves[key]):
-#        ax = make_axes()
-#        arrow(vel=key, color='r')
+        ax = make_axes()
+        arrow(vel=key, color='r')
         endP = move[0]
         endV = move[2],move[1]
-#        arrow(start=endP, vel=endV, color='g')
+        arrow(start=endP, vel=endV, color='g')
         taken = move[3]
         bezier = move[4]
         s = "key: {0}\nendP: {1}\nendV: {2}\ntaken: {3}\n".format(key, endP, endV, taken)
 #        s = str(endP)
-        print s
-#        pylab.text(-3.3 * arg, 3.3 * arg, s)
-#
-#        pylab.scatter(zip(*bezier)[0], zip(*bezier)[1], c='g', alpha=.25, edgecolors='none')
-#
-#        pylab.scatter(zip(*taken)[0], zip(*taken)[1], c='r', s=20, alpha=.75, edgecolors='none')
-#
-#        pylab.draw()
-#        pylab.pause(0.0001)
-#        pylab.clf()
+#        print s
+        pylab.text(-3.3 * arg, 3.3 * arg, s)
+
+        pylab.scatter(zip(*bezier)[0], zip(*bezier)[1], c='g', alpha=.25, edgecolors='none')
+
+        pylab.scatter(zip(*taken)[0], zip(*taken)[1], c='r', s=20, alpha=.75, edgecolors='none')
+
+        pylab.draw()
+        pylab.pause(0.0001)
+        pylab.clf()
 
 
 def make_axes():
@@ -265,14 +265,14 @@ def make_axes():
     return ax
 
 if __name__ == "__main__":
-    arg = 4
+    arg = 1
     moves = getAllowedMoves(arg,2,4,True)
     colors = ['aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red',
               'silver', 'teal', 'yellow']
 
-#    pylab.ion()
-#    pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
-#    pylab.show()
+    pylab.ion()
+    pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
+    pylab.show()
 
     for key in moves.keys():
         get_fig(moves, key)
