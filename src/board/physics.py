@@ -123,7 +123,7 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2, vis=False):
                     bezier = calculateBezier([deepcopy(p0), deepcopy(p1), deepcopy(p2), deepcopy(p3)])
                     startV = unfixVelocity(startV)
                     curV = unfixVelocity(curV)
-                    print i
+#                    print i
                     if not curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc):
                         break
 
@@ -230,8 +230,8 @@ def get_fig(moves, key):
         bezier = move[3]
 
         s = "key: {0}\nendP: {1}\nendV: {2}\ntaken: {3}\n".format(key, endP, endV, taken)
-        s = str(endP)
-#        print s
+#        s = str(endP)
+        print s
         pylab.text(-3.3 * arg, 3.3 * arg, s)
 
         pylab.scatter(zip(*bezier)[0], zip(*bezier)[1], c='g', alpha=.25, edgecolors='none')
@@ -261,7 +261,7 @@ def make_axes():
 
 if __name__ == "__main__":
     arg = 2
-    moves = getAllowedMoves(arg,1,2,True)
+    moves = getAllowedMoves(arg,2,4,True)
     colors = ['aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red',
               'silver', 'teal', 'yellow']
 
