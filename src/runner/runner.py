@@ -1,6 +1,9 @@
 import httplib
 import sys
 import time
+from wx import ID_VIEW_SORTDATE
+from board.physicsBoard import PhysicsBoard
+
 sys.path.append('../')
 from communication.robot import Robot
 from board.board import Board
@@ -22,6 +25,7 @@ def read_command_line_args():
         dest="configPath", help="path to config file", type="string")
     (options, args) = parser.parse_args()
     return options.visualize, options.save, options.configPath
+
 
 def readRobot(args):
     '''
@@ -46,7 +50,8 @@ def shouldContinue(robots):
 def calculate_shortest_path_length(robots, board):
     lengths = dict()
     for robot in robots:
-        lengths[robot.id] = min(map(lambda dest: shortest_path_length(board.graph, robot.position, dest), robot.destination))
+        lengths[robot.id] = min(
+            map(lambda dest: shortest_path_length(board.graph, robot.position, dest), robot.destination))
     return lengths
 
 
@@ -56,7 +61,7 @@ def parse_config(board, config):
         args = line.split()
         robot = readRobot(args)
         robots.append((robot, args[3]))
-        board.addRobot(robot.position, args[0])
+        board.addRobot(robot.position, args[0], (0, 1))
     return robots
 
 
@@ -98,14 +103,15 @@ if __name__ == "__main__":
     visualize, save, configPath = read_command_line_args()
     config = open(configPath)
     #board = Board(config.readline().strip('\n'), visualize)
-    board = SimplePhysicsBoard(config.readline().strip('\n'), visualize)
+    #    board = SimplePhysicsBoard(config.readline().strip('\n'), visualize)
+    board = PhysicsBoard(config.readline().strip('\n'), 'board', 4, 2, 4, visualize)
     statistics = dict()
     robots = parse_config(board, config)
     shortest_paths = calculate_shortest_path_length(map(lambda r: r[0], robots), board)
     initialize(board, robots)
     print "initialized"
     while shouldContinue(robots):
-     #   print map(lambda t: t[0].position, robots)
+    #   print map(lambda t: t[0].position, robots)
         moves = []
         for robot, url in robots:
             robot.robots = map(lambda r: r[0].position, robots)

@@ -37,7 +37,7 @@ class Robot:
     def from_json(self, json):
         dictionary = ast.literal_eval(json)
         self.robots = [(x[0], x[1]) for x in dictionary["robots"]]
-        self.allowedMoves = [((x[0][0], x[0][1]), (x[1][0], x[1][1])) for x in dictionary["allowedMoves"]]
+        self.allowedMoves = [((x[0][0], x[0][1]), (x[1][0], x[1][1]), x[2]) for x in dictionary["allowedMoves"]]
         self.destination = [(x[0], x[1]) for x in dictionary["destination"]]
         self.position = (tuple(dictionary["position"]))
         self.velocity = (tuple(dictionary["velocity"]))

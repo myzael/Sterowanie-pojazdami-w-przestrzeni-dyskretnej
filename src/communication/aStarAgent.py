@@ -1,16 +1,14 @@
 import sys
 
 sys.path.append("/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src")
+from board.physicsBoard import PhysicsBoard
 import time
 import BaseHTTPServer
-from board.board import Board
-from board.simplePhysicsBoard import SimplePhysicsBoard
 from robot import Robot
 
 HOST_NAME = 'localhost'
 
 board = None
-physics_board = None
 limit = None
 
 def selection(openset, end):
@@ -39,7 +37,7 @@ def a_star(start, end):
             return end
         openset.remove(current)
         closedset.add(current)
-        for point in board.getAllowedMoves(current):
+        for point in board.getFreeNeighbors(current):
             if point not in closedset:
                 if point not in openset:
                     openset.add(point)
@@ -47,7 +45,7 @@ def a_star(start, end):
 
 
 def physics_a_star(start, end):
-    global physics_board
+    global board
     global limit
     path = []
     previous = {}
@@ -66,12 +64,11 @@ def physics_a_star(start, end):
             return path[0]
         openset.remove(current)
         closedset.add(current)
-        for s in physics_board.getAllowedMoves(current):
-            for state in [(s[0], s[1], speed) for speed in range(0, 3) if abs(speed - current[2]) <= 1]:
-                if state not in closedset:
-                    if state not in openset:
-                        openset.add(state)
-                    previous[state] = current
+        for state in board.getAllowedMoves(current):
+            if state not in closedset:
+                if state not in openset:
+                    openset.add(state)
+                previous[state] = current
     current = physics_slection(openset, end)
     path.insert(0, current)
     while current in previous:
@@ -98,18 +95,18 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         if robot.getOwnPosition() in robot.destination:
-            self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [1, 1] }' % robot.getOwnPosition())
+            self.wfile.write('{ "move": [ %s, %s ], "speed" : 0, "velocity" : [1, 1] }' % robot.getOwnPosition())
         else:
             move = physics_a_star((robot.position, robot.velocity, robot.speed),
                 a_star(robot.position, robot.destination[0]))
-            self.wfile.write('{ "move": [ %s, %s ], "speed" : 1, "velocity" : [%s, %s] }' % (
-                move[0][0], move[0][1], move[1][0], move[1][1]))
+            self.wfile.write('{ "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
+                move[0][0], move[0][1], move[2], move[1][0], move[1][1]))
 
 if __name__ == '__main__':
-    board = Board(sys.argv[3], False)
-    physics_board = SimplePhysicsBoard(sys.argv[3], False)
+    board = PhysicsBoard(sys.argv[3], 'board', 4, 2, 4, False)
     limit = int(sys.argv[2])
-    print a_star((0, 0), (12, 2))
+    #    print a_star((0, 0), (12, 2))
+    print board.getFreeNeighbors((5, 0))
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), aStarAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
