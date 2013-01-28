@@ -64,7 +64,7 @@ def physics_a_star(start, end):
             return path[0]
         openset.remove(current)
         closedset.add(current)
-        for state in board.getAllowedMoves(current):
+        for state in board.getAvaliableStates(current):
             if state not in closedset:
                 if state not in openset:
                     openset.add(state)
@@ -105,8 +105,8 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
 if __name__ == '__main__':
     board = PhysicsBoard(sys.argv[3], 'board', 4, 2, 4, False)
     limit = int(sys.argv[2])
-    #    print a_star((0, 0), (12, 2))
-    print board.getFreeNeighbors((5, 0))
+    print board.getFreeNeighbors((19, 0))
+    print physics_a_star(((19,0),(1,0),1), (19,10))
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), aStarAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
