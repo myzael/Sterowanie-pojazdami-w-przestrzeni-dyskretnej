@@ -54,7 +54,6 @@ class Board(object):
             self.history.append((sourcePosition, targetPosition))
             self.graph.node[targetPosition][ROBOT_ID] = self.graph.node[sourcePosition].pop(ROBOT_ID)
 
-
     def getAllowedMoves(self, position):
         '''Does NOT require a robot tom be in the specified position'''
         return [position] + filter(self._canMoveTo, self.graph.neighbors(position))

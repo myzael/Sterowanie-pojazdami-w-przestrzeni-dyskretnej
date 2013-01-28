@@ -56,6 +56,9 @@ class SimplePhysicsBoard(Board):
             return 'k'
 
 
+    def getFreeNeighbors(self,position):
+        filter(not self._positionOccupied, self.graph.neighbors(position))
+
     def getAllowedMoves(self, position):
         # emptyAvaliablePlaces
         eAP = [position] + filter(self._canMoveTo, self.graph.neighbors(position))
