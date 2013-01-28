@@ -1,3 +1,4 @@
+import copy
 import operator
 from src.board import physics
 from src.board.board import ROBOT_ID, Board
@@ -6,16 +7,16 @@ import cPickle
 
 SPEED = 'speed'
 
-filename = 'physics'
-
 class PhysicsBoard(SimplePhysicsBoard):
-    def __init__(self, maxSpeed, maxNegAcc, maxPosAcc):
+    def __init__(self, boardfilename, physicsfilename, maxSpeed, maxPosAcc, maxNegAcc, draw=False ):
+        Board.__init__(self, boardfilename, draw)
         try:
-            file = open(filename, 'r')
+            file = open(physicsfilename, 'r')
             self.moves = cPickle.load(file)
         except IOError:
             self.moves = physics.getAllowedMoves(maxSpeed=maxSpeed, maxPosAcc=maxPosAcc, maxNegAcc=maxNegAcc, vis=False)
-            cPickle.dump(self.moves)
+            file = open(physicsfilename, 'w')
+            cPickle.dump(self.moves, file)
 
     def addRobot(self, position, robotID, initialDirection):
         Board.addRobot(self, position, robotID)
@@ -25,15 +26,22 @@ class PhysicsBoard(SimplePhysicsBoard):
     def getAllowedMoves(self, position):
         """
         returns list of tuples of (endP,endV,listOfTakenFields) that represent allowed moves
-        e.g.   (
+        e.g.   [(
                 (4,6), #end point
                 (2,(1,-1)), #end velocity (speed, (xDirection, yDirection))
                 [(4,6), (4,5), (5,4)] #list of points that would be taken while making this move
-               )
+               ),...]
         list of taken fields is given in no particular order
         """
-        self.moves[self.graph]
-        eAP = [position] + filter(self._canMoveTo, self.graph.neighbors(position))
+
+        key = (self.graph.node[position][SPEED], self.graph.node[position][VELOCITY])
+        aMoves = copy.copy(self.moves[key])
+        aMoves = map(lambda tup: self.translate(tup,position), aMoves)
+
+        return filter(lambda tup :not self._positionOccupied(tup[0]),aMoves)
+
+    def translate(self, tup, position):
+        return (tuple(map(operator.add, tup[0], position))),tup[1],tup[2]
 
 
     def moveRobot(self, sourcePosition, targetPosition, newSpeed, newVelocity):
@@ -54,3 +62,9 @@ class PhysicsBoard(SimplePhysicsBoard):
 
             del self.graph.node[sourcePosition][SPEED]
             self.graph.node[targetPosition][SPEED] = newSpeed
+
+if __name__ == "__main__":
+    b = PhysicsBoard('test.bmp','physics',4,2,4)
+    b.addRobot((0, 1), 1, (0,1))
+
+    print b.getAllowedMoves((0,1))
