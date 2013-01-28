@@ -38,7 +38,10 @@ class PhysicsBoard(SimplePhysicsBoard):
         aMoves = copy.copy(self.moves[key])
         aMoves = map(lambda tup: self.translate(tup,position), aMoves)
 
-        return filter(lambda tup :not self._positionOccupied(tup[0]),aMoves)
+        aMoves = filter(lambda tup: not self._positionExists(tup[0]), aMoves)
+        aMoves = filter(lambda tup: not self._positionOccupied(tup[0]), aMoves)
+
+        return aMoves
 
     def translate(self, tup, position):
         return (tuple(map(operator.add, tup[0], position))),tup[1],tup[2]
@@ -65,6 +68,6 @@ class PhysicsBoard(SimplePhysicsBoard):
 
 if __name__ == "__main__":
     b = PhysicsBoard('test.bmp','physics',4,2,4)
-    b.addRobot((0, 1), 1, (0,1))
+    b.addRobot((0, 0), 1, (0,1))
 
-    print b.getAllowedMoves((0,1))
+    print b.getAllowedMoves((0,0))

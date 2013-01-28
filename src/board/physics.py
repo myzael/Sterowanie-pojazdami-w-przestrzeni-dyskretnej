@@ -43,9 +43,10 @@ def calculateBezierLength(trajectory):
     return distance
 
 
-def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc):
+def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc, verbose=False):
     lenght = calculateBezierLength(trajectory)
-    lenghtGood = startSpeed - 0.5 * maxNegAcc <= lenght <= startSpeed + 0.5 * maxPosAcc
+    lenghtGood = startSpeed - 0.8 * maxNegAcc <= lenght <= startSpeed + 0.8 * maxPosAcc
+    #that is effing experimental
     first = trajectory[0]
     last = trajectory[-1]
 
@@ -54,6 +55,8 @@ def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc)
     speedGood = minSpeed <= curSpeed <= maxSpeed
 
     accGood = -maxNegAcc <= curSpeed - startSpeed <= maxPosAcc
+#    if not (lenghtGood and speedGood and accGood):
+#        print "lenghtGood: {0}, speedGood: {1}, accGood: {2}".format(lenghtGood,speedGood,accGood)
     return lenghtGood and speedGood and accGood
 
 
@@ -123,10 +126,10 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2, vis=False):
                     bezier = calculateBezier([deepcopy(p0), deepcopy(p1), deepcopy(p2), deepcopy(p3)])
                     startV = unfixVelocity(startV)
                     curV = unfixVelocity(curV)
-                    print startPoint, startV
-                    print i, curV
-                    print curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc)
-                    print '---------------------\n'
+#                    print startPoint, startV
+#                    print i, curV
+#                    print curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc, True)
+#                    print '---------------------\n'
                     if not curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc):
                         break
 
@@ -227,11 +230,10 @@ def get_fig(moves, key):
 #        ax = make_axes()
 #        arrow(vel=key, color='r')
         endP = move[0]
-        endV = move[1]
+        endV = move[2],move[1]
 #        arrow(start=endP, vel=endV, color='g')
-        taken = move[2]
-        bezier = move[3]
-
+        taken = move[3]
+        bezier = move[4]
         s = "key: {0}\nendP: {1}\nendV: {2}\ntaken: {3}\n".format(key, endP, endV, taken)
 #        s = str(endP)
         print s
