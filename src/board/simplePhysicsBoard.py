@@ -25,23 +25,23 @@ class SimplePhysicsBoard(Board):
             del self.graph.node[sourcePosition][VELOCITY]
             self.graph.node[targetPosition][VELOCITY] = tuple(map(operator.sub, targetPosition, sourcePosition))
 
-    def draw(self):
-        nc = map(self.createNodesColors, self.graph.nodes())
-        nx.draw_networkx_nodes(self.graph, self.nodePositions, node_size=200, node_color=nc,animated=True)
-
-        l = []
-        for r in self.getRobots():
-            vel =self.graph.node[r][VELOCITY]
-            if vel != (0,0):
-                velPos = tuple(map(operator.add, vel, r))
-                l.append((r, velPos))
-                # fucking networkx ordering!
-                l.append((velPos, r))
-
-        ec = map((lambda x: x in l and 'y' or'k'), self.graph.edges())
-        
-        nx.draw_networkx_edges(self.graph, self.nodePositions, edge_color=ec, width=5, animated=True)
-        nx.draw_networkx_labels(self.graph, self.nodePositions, labels=self.getRobots(), font_color='w', animated=True)
+#    def draw(self):
+#        nc = map(self.createNodesColors, self.graph.nodes())
+#        nx.draw_networkx_nodes(self.graph, self.nodePositions, node_size=200, node_color=nc,animated=True)
+#
+#        l = []
+#        for r in self.getRobots():
+#            vel =self.graph.node[r][VELOCITY]
+#            if vel != (0,0):
+#                velPos = tuple(map(operator.add, vel, r))
+#                l.append((r, velPos))
+#                # fucking networkx ordering!
+#                l.append((velPos, r))
+#
+#        ec = map((lambda x: x in l and 'y' or'k'), self.graph.edges())
+#
+#        nx.draw_networkx_edges(self.graph, self.nodePositions, edge_color=ec, width=5, animated=True)
+#        nx.draw_networkx_labels(self.graph, self.nodePositions, labels=self.getRobots(), font_color='w', animated=True)
 
     def createNodesColors(self, tup):
         if tup in self.getRobots().keys():
