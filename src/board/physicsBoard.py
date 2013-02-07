@@ -38,18 +38,18 @@ class PhysicsBoard(SimplePhysicsBoard):
         aMoves = copy.copy(self.moves[key])
         aMoves = map(lambda tup: self.translate(tup,position), aMoves)
 
-        aMoves = filter(lambda tup: not self._positionExists(tup[0]), aMoves)
+        aMoves = filter(lambda tup: self._positionExists(tup[0]), aMoves)
         aMoves = filter(lambda tup: not self._positionOccupied(tup[0]), aMoves)
 
         return aMoves
 
     def getAvaliableStates(self, state):
 
-        key = state[1],state[2]
+        key = state[2],state[1]
         aMoves = copy.copy(self.moves[key])
         aMoves = map(lambda tup: self.translate(tup,state[0]), aMoves)
 
-        aMoves = filter(lambda tup: not self._positionExists(tup[0]), aMoves)
+        aMoves = filter(lambda tup: self._positionExists(tup[0]), aMoves)
 
         return aMoves
 
@@ -96,8 +96,26 @@ class NoPhysicsBoard(Board):
 if __name__ == "__main__":
     b = PhysicsBoard('test.bmp','physics',4,2,4)
     b.addRobot((0, 0), 1, (0,1))
+    b.addRobot((0, 1), 2, (0,1))
 
-#    print b.getAllowedMoves((0,0))
+    print '#############################'
+    for move in b.getAllowedMoves((0,0)):
+        print move
 
-    for i in b.getAvaliableStates(((0,0), (0,1), 0)):
-        print i
+    print '#############################'
+
+    for move in b.getAllowedMoves((0,1)):
+        print move
+
+    print '#############################'
+
+#    states = [((0, 0), (0, 1), 0),((0, 0), (0, 1), 2),((0, 0), (0, 1), 3),((0, 0), (0, 1), 4)]
+    states = [((0, 0), (0, 1), 4)]
+    for state in states:
+        print state
+        print '###########'
+        for i in b.getAvaliableStates(state):
+            print i
+        print '#############################'
+
+

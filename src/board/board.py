@@ -71,7 +71,8 @@ class Board(object):
     def _canMoveTo(self, position):
         return self._positionExists(position) and not self._positionOccupied(position)
     def _positionExists(self, position):
-        return position in self.graph.nodes()
+        falg = position in self.graph.nodes()
+        return falg
     def _positionOccupied(self, position):
         ret = ROBOT_ID in self.graph.node[position]
         return ret

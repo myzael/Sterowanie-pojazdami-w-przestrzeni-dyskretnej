@@ -15,7 +15,7 @@ def selection(openset, end):
     return min(openset, key=lambda point: abs(end[0] - point[0]) + abs(end[1] - point[1]))
 
 
-def physics_slection(openset, end):
+def physics_selection(openset, end):
     def heuristics(state):
         x, y = state[0]
         return abs(end[0] - x) + abs(end[1] - y)
@@ -56,7 +56,7 @@ def physics_a_star(start, end):
 
     while openset and steps < limit:
         steps += 1
-        current = physics_slection(openset, end)
+        current = physics_selection(openset, end)
         if current[0] == end:
             path.insert(0, current)
             while current in previous:
@@ -70,7 +70,7 @@ def physics_a_star(start, end):
                 if state not in openset:
                     openset.add(state)
                 previous[state] = current
-    current = physics_slection(openset, end)
+    current = physics_selection(openset, end)
     path.insert(0, current)
     while current in previous:
         current = previous[current]
