@@ -1,15 +1,16 @@
 import sys
 
-sys.path.append("/home/makz/studia/agenty/Sterowanie-pojazdami-w-przestrzeni-dyskretnej/src")
-from board.physicsBoard import PhysicsBoard, NoPhysicsBoard
+sys.path.append("C:\Kuba\Coding\Studies\Agenty\Sterowanie-pojazdami-w-przestrzeni-dyskretnej")
 import time
 import BaseHTTPServer
 from robot import Robot
+from src.board.physicsBoard import PhysicsBoard
 
 HOST_NAME = 'localhost'
 
 board = None
 limit = None
+
 
 def selection(openset, end):
     return min(openset, key=lambda point: abs(end[0] - point[0]) + abs(end[1] - point[1]))
@@ -100,18 +101,16 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('{ "move": [ %s, %s ], "speed" : 0, "velocity" : [1, 1] }' % robot.getOwnPosition())
         else:
             move = physics_a_star((robot.position, robot.velocity, robot.speed),
-                a_star(robot.position, robot.destination[0], robot.robots))
-            print '{ "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
-                move[0][0], move[0][1], move[2], move[1][0], move[1][1])
-            self.wfile.write('{ "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
-                move[0][0], move[0][1], move[2], move[1][0], move[1][1]))
+                                  a_star(robot.position, robot.destination[0], robot.robots))
+            log = '{"robotID" : %s, "move": [ %s, %s ], "speed" : %s, "velocity" : [%s, %s] }' % (
+            robot.id, move[0][0], move[0][1], move[2], move[1][0], move[1][1])
+            print log
+            self.wfile.write(log)
+
 
 if __name__ == '__main__':
-#    board = PhysicsBoard(sys.argv[3], 'board', 4, 2, 4, False)
-    board = NoPhysicsBoard(sys.argv[3], False)
+    board = PhysicsBoard(sys.argv[3], '../../board', 4, 3, 4, False)
     limit = int(sys.argv[2])
-    print board.getFreeNeighbors((19, 0))
-    print physics_a_star(((19,0),(1,0),1), (19,10))
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), aStarAgent)
     print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, sys.argv[1])
