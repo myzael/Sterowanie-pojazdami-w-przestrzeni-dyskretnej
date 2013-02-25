@@ -66,7 +66,9 @@ def parse_config(board, config):
         args = line.split()
         robot = readRobot(args)
         robots.append((robot, args[3]))
-        board.addRobot(robot.position, args[0], (0, 1))
+        direction = eval(args[1])[2]
+        speed = eval(args[1])[1]
+        board.addRobot(robot.position, args[0], direction, speed)
     return robots
 
 
@@ -129,7 +131,7 @@ if __name__ == "__main__":
             robot.setVelocity(newVelocity)
             robot.setSpeed(newSpeed)
         if visualize:
-            sleep(0.5)
+            sleep(0.1)
             board.refreshBoard()
     print shortest_paths
     print statistics

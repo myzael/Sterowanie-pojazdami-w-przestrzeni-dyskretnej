@@ -23,11 +23,6 @@ class Board(object):
             ax = pyplot.axes([0, 0, 1, 1])
             ax.set_xticks([])
             ax.set_yticks([])
-#
-#            self.draw()
-#            pyplot.draw()
-#            pyplot.show()
-
 
     def addRobot(self, position, robotID):
         if not self._positionExists(position):
@@ -131,16 +126,3 @@ if __name__ == "__main__":
     b1.refreshBoard();
     b1.moveRobot((0, 4), (0, 3));
     b1.refreshBoard();
-
-
-
-
-
-#    plt.show()
-#    
-#    b2 = Board('test2.bmp')
-#    nx.draw_networkx_edges(b2.graph, b2.nodePositions)
-#    nx.draw_networkx_nodes(b2.graph, b2.nodePositions, node_size=50)
-#    plt.savefig("test2-results.png")
-#    plt.show()
-

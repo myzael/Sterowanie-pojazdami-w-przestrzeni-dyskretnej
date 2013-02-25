@@ -43,7 +43,7 @@ def calculateBezierLength(trajectory):
     return distance
 
 
-def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc, verbose=False):
+def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc):
     lenght = calculateBezierLength(trajectory)
     lenghtGood = startSpeed - 0.8 * maxNegAcc <= lenght <= startSpeed + 0.8 * maxPosAcc
     #that is effing experimental
@@ -55,8 +55,6 @@ def curVelocityReachable(trajectory, startSpeed, curSpeed, maxPosAcc, maxNegAcc,
     speedGood = minSpeed <= curSpeed <= maxSpeed
 
     accGood = -maxNegAcc <= curSpeed - startSpeed <= maxPosAcc
-#    if not (lenghtGood and speedGood and accGood):
-#        print "lenghtGood: {0}, speedGood: {1}, accGood: {2}".format(lenghtGood,speedGood,accGood)
     return lenghtGood and speedGood and accGood
 
 
@@ -102,13 +100,10 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2, vis=False):
     grid = createGrid(maxSpeed)
 
     vs = getStartVs(maxSpeed)
-    #for startV in vs:
-    #   print startV
     for startV in vs:
         key = (startV[0], (startV[1].x, startV[1].y))
         if not key in moves or not moves[key]:
             moves[key] = list()
-            #        print v
         # start BFS in center point
         startPoint = Vec2d(0, 0)
         for i in nx.bfs_tree(grid, (startPoint.x, startPoint.y)):
@@ -121,15 +116,9 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2, vis=False):
                     p1 = startPoint + startV[1] * startV[0]
                     p2 = i - curV[0] * curV[1]
                     p3 = Vec2d(i)
-#                    print [p0, p1, p2, p3]
-#                    print [startPoint, startV, i, curV]
                     bezier = calculateBezier([deepcopy(p0), deepcopy(p1), deepcopy(p2), deepcopy(p3)])
                     startV = unfixVelocity(startV)
                     curV = unfixVelocity(curV)
-#                    print startPoint, startV
-#                    print i, curV
-#                    print curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc, True)
-#                    print '---------------------\n'
                     if not curVelocityReachable(bezier, startV[0], curV[0], maxPosAcc, maxNegAcc):
                         break
 
@@ -267,12 +256,18 @@ def make_axes():
 if __name__ == "__main__":
     arg = 1
     moves = getAllowedMoves(arg,2,4,True)
-    colors = ['aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red',
-              'silver', 'teal', 'yellow']
-
-    pylab.ion()
-    pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
-    pylab.show()
-
     for key in moves.keys():
-        get_fig(moves, key)
+        print key
+        for move in moves[key]:
+            print "\t{0} {1} {2}".format(move[0],move[1],move[2])
+        print "#####################################"
+
+    # colors = ['aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red',
+    #           'silver', 'teal', 'yellow']
+    #
+    # pylab.ion()
+    # pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
+    # pylab.show()
+    #
+    # for key in moves.keys():
+    #     get_fig(moves, key)
