@@ -139,18 +139,21 @@ def createGrid(maxSpeed):
     Creates full Moore neighborhood grid graph
     """
     diameter = 2 * maxSpeed + 1
-    graph = nx.grid_2d_graph(diameter, diameter)
-    for i in xrange(diameter):
-        for j in xrange(diameter):
-            if i > 0 and j > 0:
-                graph.add_edge((i, j), (i - 1, j - 1))
-            if i < diameter - 1 and j > 0:
-                graph.add_edge((i, j), (i + 1, j - 1))
-            if i > 0 and j < diameter - 1:
-                graph.add_edge((i, j), (i - 1, j + 1))
-            if i < diameter - 1 and j < diameter - 1:
-                graph.add_edge((i, j), (i + 1, j + 1))
+    graph = nx.Graph()
+    for i in xrange(-maxSpeed,maxSpeed+1):
+        for j in xrange(-maxSpeed,maxSpeed+1):
+            graph.add_node((i,j))
+
+    for i in xrange(-maxSpeed,maxSpeed+1):
+        for j in xrange(-maxSpeed,maxSpeed+1):
+            add_neighb(graph, i,j)
     return graph
+
+def add_neighb(graph, a,b):
+    for i in xrange(a-1,a+2):
+        for j in xrange(b-1,b+2):
+            if (i,j) in graph:
+                graph.add_edge((a,b),(i,j))
 
 
 def calculateBezier(points, steps=40):
