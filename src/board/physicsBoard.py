@@ -47,6 +47,12 @@ class PhysicsBoard(SimplePhysicsBoard):
         aMoves = filter(lambda tup: self._positionExists(tup[0]), aMoves)
         aMoves = filter(lambda tup: not self._positionOccupied(tup[0]), aMoves)
 
+        l=[]
+        for move in aMoves:
+            if move[2] not in l:
+                l.append(move[2])
+        print l
+
         return aMoves
 
     def getAvaliableStates(self, state):

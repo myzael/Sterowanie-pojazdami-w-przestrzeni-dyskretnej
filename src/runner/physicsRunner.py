@@ -109,7 +109,7 @@ def initialize(board, robots):
 if __name__ == "__main__":
     visualize, save, configPath, regenerate = read_command_line_args()
     config = open(configPath)
-    board = PhysicsBoard(config.readline().strip('\n'), '../../board', 4, 2, 4, visualize)
+    board = PhysicsBoard(config.readline().strip('\n'), '../../board', 4, 4, 6, visualize)
     pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
     statistics = dict()
     robots = parse_config(board, config)

@@ -109,7 +109,7 @@ class aStarAgent(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    board = PhysicsBoard(sys.argv[3], '../../board', 4, 3, 4, False)
+    board = PhysicsBoard(sys.argv[3], '../../board', 4, 4, 6, False)
     limit = int(sys.argv[2])
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, int(sys.argv[1])), aStarAgent)
