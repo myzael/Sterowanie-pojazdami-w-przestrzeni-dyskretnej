@@ -16,7 +16,7 @@ def get_move(url, robot):
     httpServ.connect()
     httpServ.request('POST', "/test", robot.to_json())
     response = httpServ.getresponse()
-    httpServ.close()
+#    httpServ.close()
     if response.status == httplib.OK:
         body = response.read()
         print body
