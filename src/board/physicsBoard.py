@@ -24,7 +24,7 @@ class PhysicsBoard(SimplePhysicsBoard):
                 file = open(physicsfilename, 'w')
                 cPickle.dump(self.moves, file)
 
-    def addRobot(self, position, robotID, initialDirection, initialSpeed):
+    def addRobot(self, position, robotID, initialDirection, initialSpeed = 0):
         Board.addRobot(self, position, robotID)
         self.graph.node[position][VELOCITY] = initialDirection
         self.graph.node[position][SPEED] = initialSpeed

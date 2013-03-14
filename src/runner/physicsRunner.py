@@ -1,4 +1,5 @@
 import sys
+from threading import Thread
 from matplotlib import pylab
 
 sys.path.append("C:\Kuba\Coding\Studies\Agenty\Sterowanie-pojazdami-w-przestrzeni-dyskretnej")
@@ -106,6 +107,16 @@ def initialize(board, robots):
         except httplib.BadStatusLine:
             pass
 
+def ask_robot_async(robot, url):
+    Thread(target=ask_robot, args=(robot,url)).start()
+
+def ask_robot(robot, url):
+    robot.robots = map(lambda r: r[0].position, robots)
+    robot.allowedMoves = board.getAllowedMoves(robot.position)
+    newPosition, newSpeed, newVelocity = get_move(url, robot)
+    moves.append((robot, newPosition, newSpeed, newVelocity))
+
+
 if __name__ == "__main__":
     visualize, save, configPath, regenerate = read_command_line_args()
     config = open(configPath)
@@ -119,10 +130,7 @@ if __name__ == "__main__":
     while shouldContinue(robots):
         moves = []
         for robot, url in robots:
-            robot.robots = map(lambda r: r[0].position, robots)
-            robot.allowedMoves = board.getAllowedMoves(robot.position)
-            newPosition, newSpeed, newVelocity = get_move(url, robot)
-            moves.append((robot, newPosition, newSpeed, newVelocity))
+            ask_robot(robot, url)
         for robot, newPosition, newSpeed, newVelocity in moves:
             board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
             if robot.position != newPosition or robot.position not in robot.destination:
