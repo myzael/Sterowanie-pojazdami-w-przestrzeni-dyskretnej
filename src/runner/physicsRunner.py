@@ -18,16 +18,17 @@ from networkx import shortest_path_length
 
 EXPONENT = 7
 
+
 def read_command_line_args():
     parser = OptionParser()
     parser.add_option("-v", "--visualize", action="store_true",
-        dest="visualize", help="visualize simulation")
+                      dest="visualize", help="visualize simulation")
     parser.add_option("-s", "--save", action="store_true",
-        dest="save", help="save history to file")
+                      dest="save", help="save history to file")
     parser.add_option("-c", "--config", action="store",
-        dest="configPath", help="path to config file", type="string")
+                      dest="configPath", help="path to config file", type="string")
     parser.add_option("-r", "--regenerate", action="store_true",
-        dest="regenerate", help="regenerate physics")
+                      dest="regenerate", help="regenerate physics")
     (options, args) = parser.parse_args()
     return options.visualize, options.save, options.configPath, options.regenerate
 
@@ -107,8 +108,12 @@ def initialize(board, robots):
         except httplib.BadStatusLine:
             pass
 
-def ask_robot_async(robot, url):
-    Thread(target=ask_robot, args=(robot,url)).start()
+
+def ask_robot_async(threads, robot, url):
+    thread = Thread(target=ask_robot, args=(robot, url))
+    threads.append(thread)
+    thread.start()
+
 
 def ask_robot(robot, url):
     robot.robots = map(lambda r: r[0].position, robots)
@@ -130,7 +135,9 @@ if __name__ == "__main__":
     while shouldContinue(robots):
         moves = []
         for robot, url in robots:
-            ask_robot(robot, url)
+            threads = []
+            ask_robot_async(threads, robot, url)
+        for t in threads: t.join()
         for robot, newPosition, newSpeed, newVelocity in moves:
             board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
             if robot.position != newPosition or robot.position not in robot.destination:
