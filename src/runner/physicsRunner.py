@@ -101,21 +101,19 @@ def initialize(board, robots):
     for robot, url in robots:
         robot.robots = map(lambda r: r[0].position, robots)
         robot.allowedMoves = board.getAllowedMoves(robot.position)
-        try:
-            get_move(url, robot)
-        except ValueError:
-            pass
-        except httplib.BadStatusLine:
-            pass
+        threads = []
+        ask_robot_async(threads, [], robot, url)
+        for t in threads:
+            t.join()
 
 
-def ask_robot_async(threads, robot, url):
-    thread = Thread(target=ask_robot, args=(robot, url))
+def ask_robot_async(threads, moves, robot, url):
+    thread = Thread(target=ask_robot, args=(moves, robot, url))
     threads.append(thread)
     thread.start()
 
 
-def ask_robot(robot, url):
+def ask_robot(moves, robot, url):
     robot.robots = map(lambda r: r[0].position, robots)
     robot.allowedMoves = board.getAllowedMoves(robot.position)
     newPosition, newSpeed, newVelocity = get_move(url, robot)
@@ -136,8 +134,9 @@ if __name__ == "__main__":
         moves = []
         for robot, url in robots:
             threads = []
-            ask_robot_async(threads, robot, url)
-        for t in threads: t.join()
+            ask_robot_async(threads, moves, robot, url)
+        for t in threads:
+            t.join()
         for robot, newPosition, newSpeed, newVelocity in moves:
             board.moveRobot(robot.position, newPosition, newSpeed, newVelocity)
             if robot.position != newPosition or robot.position not in robot.destination:
