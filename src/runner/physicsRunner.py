@@ -2,16 +2,18 @@ import sys
 from threading import Thread
 from matplotlib import pylab
 
-sys.path.append("C:\Kuba\Coding\Studies\Agenty\Sterowanie-pojazdami-w-przestrzeni-dyskretnej")
+sys.path.append("C:\Users\Mateusz\Desktop\nauka\Studia\IX semestr\magisterka")
 
 import httplib
 import sys
 import time
+sys.path.append('../')
+sys.path.append('../../')
 from src.board.physicsBoard import PhysicsBoard
 from src.communication.client import get_move
 from src.communication.robot import Robot
 
-sys.path.append('../')
+
 from time import sleep
 from optparse import OptionParser
 from networkx import shortest_path_length
@@ -98,22 +100,25 @@ def calculate__metric(shortest_paths, statistics):
 
 
 def initialize(board, robots):
+    threads = []
     for robot, url in robots:
         robot.robots = map(lambda r: r[0].position, robots)
         robot.allowedMoves = board.getAllowedMoves(robot.position)
-        threads = []
         ask_robot_async(threads, [], robot, url)
-        for t in threads:
-            t.join()
+        print "robot asked.."
+    for t in threads:
+        t.join()
 
 
 def ask_robot_async(threads, moves, robot, url):
     thread = Thread(target=ask_robot, args=(moves, robot, url))
     threads.append(thread)
+    print "starting thread"
     thread.start()
 
 
 def ask_robot(moves, robot, url):
+    print "asking..."
     robot.robots = map(lambda r: r[0].position, robots)
     robot.allowedMoves = board.getAllowedMoves(robot.position)
     newPosition, newSpeed, newVelocity = get_move(url, robot)
@@ -121,9 +126,10 @@ def ask_robot(moves, robot, url):
 
 
 if __name__ == "__main__":
+    print "Start!!!"
     visualize, save, configPath, regenerate = read_command_line_args()
     config = open(configPath)
-    board = PhysicsBoard(config.readline().strip('\n'), '../../board', 4, 4, 6, visualize)
+    board = PhysicsBoard(config.readline().strip('\n'), '../../board', 2, 2, 2, visualize)
     pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
     statistics = dict()
     robots = parse_config(board, config)
@@ -132,8 +138,8 @@ if __name__ == "__main__":
     print "initialized"
     while shouldContinue(robots):
         moves = []
+        threads = []
         for robot, url in robots:
-            threads = []
             ask_robot_async(threads, moves, robot, url)
         for t in threads:
             t.join()
