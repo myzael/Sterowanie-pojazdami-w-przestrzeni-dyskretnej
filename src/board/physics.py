@@ -128,9 +128,9 @@ def getAllowedMoves(maxSpeed, maxPosAcc=1, maxNegAcc=2, vis=False):
                     takenFields = calculateTakenFields(bezier)
 
                     if vis:
-                        moves[key].append( (i, (curV[1].x, curV[1].y), curV[0], takenFields, bezier) )
+                        moves[key].append( (i, (curV[1].x, curV[1].y), curV[0]))#, takenFields, bezier) )
                     else:
-                        moves[key].append( (i, (curV[1].x, curV[1].y), curV[0], takenFields) )
+                        moves[key].append( (i, (curV[1].x, curV[1].y), curV[0]))#, takenFields) )
     return moves
 
 
@@ -258,11 +258,12 @@ def make_axes():
 
 if __name__ == "__main__":
     arg = 1
-    moves = getAllowedMoves(arg,2,4,True)
+    moves = getAllowedMoves(arg,2,4,False)
     for key in moves.keys():
         print key
         for move in moves[key]:
-            print "\t{0} {1} {2}".format(move[0],move[1],move[2])
+            print move
+            # print "\t{0} {1} {2}".format(move[0],move[1],move[2])
         print "#####################################"
 
     # colors = ['aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red',

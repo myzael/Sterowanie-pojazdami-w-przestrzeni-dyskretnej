@@ -29,10 +29,10 @@ def read_command_line_args():
                       dest="save", help="save history to file")
     parser.add_option("-c", "--config", action="store",
                       dest="configPath", help="path to config file", type="string")
-    parser.add_option("-r", "--regenerate", action="store_true",
-                      dest="regenerate", help="regenerate physics")
+    parser.add_option("-r", "--read", action="store",
+                      dest="read", help="reads physics from given file", type='string')
     (options, args) = parser.parse_args()
-    return options.visualize, options.save, options.configPath, options.regenerate
+    return options.visualize, options.save, options.configPath, options.read
 
 
 def readRobot(args):
@@ -105,7 +105,6 @@ def initialize(board, robots):
         robot.robots = map(lambda r: r[0].position, robots)
         robot.allowedMoves = board.getAllowedMoves(robot.position)
         ask_robot_async(threads, [], robot, url)
-        print "robot asked.."
     for t in threads:
         t.join()
 
@@ -113,7 +112,6 @@ def initialize(board, robots):
 def ask_robot_async(threads, moves, robot, url):
     thread = Thread(target=ask_robot, args=(moves, robot, url))
     threads.append(thread)
-    print "starting thread"
     thread.start()
 
 
@@ -126,10 +124,12 @@ def ask_robot(moves, robot, url):
 
 
 if __name__ == "__main__":
-    print "Start!!!"
-    visualize, save, configPath, regenerate = read_command_line_args()
+    visualize, save, configPath, read = read_command_line_args()
     config = open(configPath)
-    board = PhysicsBoard(config.readline().strip('\n'), '../../board', 2, 2, 2, visualize)
+    if read:
+        board = PhysicsBoard(config.readline().strip('\n'), read, visualize)
+    else:
+        board = PhysicsBoard(config.readline().strip('\n'), '../../board', 2, 2, 2, visualize)
     pylab.get_current_fig_manager().window.wm_geometry("1000x1000+0+0")
     statistics = dict()
     robots = parse_config(board, config)

@@ -2,20 +2,18 @@ import copy
 import operator
 from src.board import physics
 from src.board.board import ROBOT_ID, Board
+from src.board.physicsReader import readPhysics
 from src.board.simplePhysicsBoard import SimplePhysicsBoard, VELOCITY
 import cPickle
 
 SPEED = 'speed'
 
 class PhysicsBoard(SimplePhysicsBoard):
-    def __init__(self, boardfilename, physicsfilename, maxSpeed, maxPosAcc, maxNegAcc, draw=False, regenerate=False):
+    def __init__(self, boardfilename, physicsfilename, draw=False, maxSpeed=None, maxPosAcc=None, maxNegAcc=None):
         Board.__init__(self, boardfilename, draw)
-        if regenerate:
-            self.moves = physics.getAllowedMoves(maxSpeed=maxSpeed, maxPosAcc=maxPosAcc, maxNegAcc=maxNegAcc, vis=False)
-            file = open(physicsfilename, 'w')
-            cPickle.dump(self.moves, file)
+        if maxSpeed==None and maxPosAcc==None and maxNegAcc==None:
+            self.moves = readPhysics(physicsfilename)
         else:
-
             try:
                 file = open(physicsfilename, 'r')
                 self.moves = cPickle.load(file)
